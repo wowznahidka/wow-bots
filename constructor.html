@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOW Bots — Конструктор</title>
+<style>
+:root{
+  --bg:#0F0F0F;--s1:#181818;--s2:#222;--b:#2D2D2D;
+  --red:#FF3E3E;--red-d:rgba(255,62,62,.12);--red-b:rgba(255,62,62,.3);
+  --text:#EFEFEF;--muted:#888;
+  --green:#22C55E;--green-d:rgba(34,197,94,.12);
+  --blue-d:rgba(59,130,246,.12);--blue-b:rgba(59,130,246,.3);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5}
+
+.header{background:var(--s1);border-bottom:1px solid var(--b);padding:13px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:12px}
+.logo{font-size:16px;font-weight:700;white-space:nowrap}.logo b{color:var(--red)}
+.hbtns{display:flex;gap:8px;flex-wrap:wrap}
+
+.layout{display:flex;min-height:calc(100vh - 54px)}
+.sidebar{width:196px;background:var(--s1);border-right:1px solid var(--b);padding:14px 0;position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto;flex-shrink:0}
+.nav{display:flex;align-items:center;gap:9px;padding:10px 16px;cursor:pointer;font-size:13px;color:var(--muted);border-left:3px solid transparent;transition:all .15s;user-select:none}
+.nav:hover{background:var(--s2);color:var(--text)}
+.nav.on{background:var(--red-d);color:var(--red);border-left-color:var(--red)}
+.num{width:19px;height:19px;border-radius:50%;background:var(--s2);font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.nav.on .num{background:var(--red);color:#fff}
+
+.main{flex:1;padding:26px 30px;max-width:840px}
+.sec{display:none}.sec.on{display:block}
+.stitle{font-size:20px;font-weight:700;margin-bottom:18px}.stitle b{color:var(--red)}
+
+.progress{height:3px;background:var(--s2);border-radius:2px;margin-bottom:26px}
+.fill{height:100%;background:var(--red);border-radius:2px;transition:width .4s}
+
+.lbl{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px}
+.inp,.ta{width:100%;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:10px 13px;color:var(--text);font-size:14px;outline:none;transition:border-color .15s;font-family:inherit}
+.inp:focus,.ta:focus{border-color:var(--red)}
+.ta{resize:vertical;min-height:78px}
+.hint{font-size:11px;color:var(--muted);margin-top:5px}
+.fg{margin-bottom:16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.ge{display:grid;grid-template-columns:70px 1fr;gap:11px}
+.gp{display:grid;grid-template-columns:1fr 96px;gap:11px}
+
+.trow{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+.tog{width:34px;height:19px;border-radius:10px;background:var(--s2);border:1px solid var(--b);position:relative;transition:background .2s;cursor:pointer;flex-shrink:0}
+.tog.on{background:var(--red);border-color:var(--red)}
+.tog::after{content:'';width:13px;height:13px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .2s}
+.tog.on::after{transform:translateX(15px)}
+
+.card{background:var(--s1);border:1px solid var(--b);border-radius:11px;padding:17px;margin-bottom:13px}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;gap:8px}
+.ct{font-weight:600;font-size:14px;display:flex;align-items:center;gap:7px}
+.badge{font-size:11px;padding:2px 7px;border-radius:11px;background:var(--s2);color:var(--muted)}
+.nest{background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:13px;margin-bottom:9px}
+.nest .ch{margin-bottom:10px}
+.div{height:1px;background:var(--b);margin:14px 0}
+
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:5px;font-family:inherit;transition:all .15s;white-space:nowrap;text-decoration:none}
+.btn-r{background:var(--red);color:#fff}.btn-r:hover{background:#e63535}
+.btn-d{background:var(--s2);color:var(--text);border:1px solid var(--b)}.btn-d:hover{background:var(--b)}
+.btn-g{background:transparent;color:var(--muted);border:1px solid var(--b)}.btn-g:hover{color:var(--text);background:var(--s2)}
+.btn-x{background:rgba(255,62,62,.1);color:var(--red);border:1px solid rgba(255,62,62,.2)}.btn-x:hover{background:rgba(255,62,62,.2)}
+.btn-sm{padding:4px 9px;font-size:12px}
+.btn-lg{padding:12px 24px;font-size:15px;border-radius:10px}
+
+.addbtn{width:100%;padding:10px;background:transparent;border:2px dashed var(--b);border-radius:9px;color:var(--muted);cursor:pointer;font-size:13px;text-align:center;transition:all .15s;font-family:inherit}
+.addbtn:hover{border-color:var(--red);color:var(--red);background:var(--red-d)}
+
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px}
+.ai{background:var(--blue-d);border:1px solid var(--blue-b);color:#93c5fd}
+.as{background:var(--green-d);border:1px solid rgba(34,197,94,.3);color:var(--green)}
+
+.jprev{background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:16px;font-family:'Courier New',monospace;font-size:12px;line-height:1.6;color:#9da8b7;max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+
+.snav{display:flex;justify-content:space-between;margin-top:26px;padding-top:16px;border-top:1px solid var(--b)}
+
+/* MODAL */
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;padding:20px;overflow-y:auto}
+.mc{max-width:680px;margin:0 auto;background:var(--s1);border-radius:15px;padding:22px}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+
+/* TEMPLATES */
+.tpls{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+.tpl{background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s}
+.tpl:hover{border-color:var(--red);background:var(--red-d);transform:translateY(-2px)}
+.tpl-ico{font-size:28px;margin-bottom:6px}
+.tpl-name{font-size:12px;font-weight:600}
+
+/* PROMO */
+.promo-row{display:flex;gap:10px;margin-bottom:8px;align-items:center}
+.promo-row .inp{flex:1}
+.promo-pct{width:80px}
+
+@media(max-width:720px){
+  .sidebar{display:none}.main{padding:14px}
+  .g2{grid-template-columns:1fr}.ge{grid-template-columns:56px 1fr}
+  .gp{grid-template-columns:1fr}.btn-lg{padding:10px 16px;font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">WOW <b>Bots</b> — Конструктор</div>
+  <div class="hbtns">
+    <button class="btn btn-g" onclick="showModal()">👁 JSON</button>
+    <button class="btn btn-r btn-lg" onclick="dlConfig()">⬇ Завантажити config.json</button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav on" id="n0" onclick="go(0)"><div class="num">1</div>Бізнес</div>
+    <div class="nav"    id="n1" onclick="go(1)"><div class="num">2</div>Адреса</div>
+    <div class="nav"    id="n2" onclick="go(2)"><div class="num">3</div>Каталог</div>
+    <div class="nav"    id="n3" onclick="go(3)"><div class="num">4</div>Промокоди</div>
+    <div class="nav"    id="n4" onclick="go(4)"><div class="num">5</div>FAQ</div>
+    <div class="nav"    id="n5" onclick="go(5)"><div class="num">6</div>Готово</div>
+  </nav>
+
+  <main class="main">
+
+    <!-- 0: ШАБЛОНИ + БІЗНЕС -->
+    <div class="sec on" id="s0">
+      <h1 class="stitle">1. <b>Ваш бізнес</b></h1>
+      <div class="progress"><div class="fill" style="width:17%"></div></div>
+
+      <div style="margin-bottom:20px">
+        <div class="lbl" style="margin-bottom:10px">Швидкий старт — оберіть шаблон:</div>
+        <div class="tpls" id="tpl-grid"></div>
+      </div>
+
+      <div class="div"></div>
+
+      <div class="fg">
+        <label class="lbl">Назва бізнесу *</label>
+        <input class="inp" id="f-name" placeholder="Кафе Аромат, Beauty Studio Oasis..." oninput="st.name=this.value">
+        <div class="hint">Ця назва з'явиться в боті</div>
+      </div>
+      <div class="fg">
+        <label class="lbl">Ваш Telegram ID (для замовлень) *</label>
+        <input class="inp" id="f-owner" type="text" placeholder="123456789" oninput="st.owner_chat_id=this.value">
+        <div class="hint">Дізнатись: @userinfobot → пише ваш ID</div>
+      </div>
+      <div class="fg">
+        <label class="lbl">Привітання</label>
+        <textarea class="ta" id="f-greet" style="min-height:88px"
+          placeholder="👋 Привіт, {name}!&#10;&#10;Раді бачити вас! Оберіть розділ:"
+          oninput="st.greeting=this.value"></textarea>
+        <div class="hint"><code>{name}</code> — ім'я клієнта підставляється автоматично</div>
+      </div>
+      <div class="fg">
+        <label class="lbl">Кошик</label>
+        <label class="trow">
+          <div class="tog on" id="cart-tog" onclick="togCart()"></div>
+          <span id="cart-lbl">Показувати кнопку кошика</span>
+        </label>
+      </div>
+
+      <div class="snav"><div></div><button class="btn btn-r" onclick="go(1)">Далі: Адреса →</button></div>
+    </div>
+
+    <!-- 1: АДРЕСА -->
+    <div class="sec" id="s1">
+      <h1 class="stitle">2. <b>Адреса і контакти</b></h1>
+      <div class="progress"><div class="fill" style="width:33%"></div></div>
+      <div class="alert ai">Онлайн-бізнес без адреси? Залиште поля порожніми — розділ не покажеться в боті.</div>
+      <div class="card">
+        <div class="fg"><label class="lbl">Адреса</label><input class="inp" placeholder="вул. Хрещатик 1, Київ" oninput="st.address.street=this.value"></div>
+        <div class="fg"><label class="lbl">Графік</label><input class="inp" placeholder="Пн-Пт 09:00-21:00 | Сб-Нд 10:00-20:00" oninput="st.address.hours=this.value"></div>
+        <div class="fg" style="margin-bottom:0"><label class="lbl">Телефон</label><input class="inp" placeholder="+380 99 123 45 67" oninput="st.address.phone=this.value"></div>
+      </div>
+      <div class="snav">
+        <button class="btn btn-g" onclick="go(0)">← Назад</button>
+        <button class="btn btn-r" onclick="go(2)">Далі: Каталог →</button>
+      </div>
+    </div>
+
+    <!-- 2: КАТАЛОГ -->
+    <div class="sec" id="s2">
+      <h1 class="stitle">3. <b>Каталог</b></h1>
+      <div class="progress"><div class="fill" style="width:50%"></div></div>
+      <div class="alert ai">Категорія може мати товари напряму <b>або</b> підкатегорії з товарами. Товари — назва, ціна, опис, фото (URL).</div>
+      <div id="cats"></div>
+      <button class="addbtn" onclick="addCat()">＋ Додати категорію</button>
+      <div class="snav">
+        <button class="btn btn-g" onclick="go(1)">← Назад</button>
+        <button class="btn btn-r" onclick="go(3)">Далі: Промокоди →</button>
+      </div>
+    </div>
+
+    <!-- 3: ПРОМОКОДИ -->
+    <div class="sec" id="s3">
+      <h1 class="stitle">4. <b>Промокоди</b></h1>
+      <div class="progress"><div class="fill" style="width:67%"></div></div>
+      <div class="alert ai">Клієнт вводить код під час замовлення — і отримує знижку. Необов'язково.</div>
+      <div id="promos"></div>
+      <button class="addbtn" onclick="addPromo()">＋ Додати промокод</button>
+      <div class="snav">
+        <button class="btn btn-g" onclick="go(2)">← Назад</button>
+        <button class="btn btn-r" onclick="go(4)">Далі: FAQ →</button>
+      </div>
+    </div>
+
+    <!-- 4: FAQ -->
+    <div class="sec" id="s4">
+      <h1 class="stitle">5. <b>Часті питання</b></h1>
+      <div class="progress"><div class="fill" style="width:83%"></div></div>
+      <div id="faqs"></div>
+      <button class="addbtn" onclick="addFaq()">＋ Додати питання</button>
+      <div class="snav">
+        <button class="btn btn-g" onclick="go(3)">← Назад</button>
+        <button class="btn btn-r" onclick="go(5)">Готово →</button>
+      </div>
+    </div>
+
+    <!-- 5: ГОТОВО -->
+    <div class="sec" id="s5">
+      <h1 class="stitle">6. <b>Готово!</b></h1>
+      <div class="progress"><div class="fill" style="width:100%"></div></div>
+      <div class="alert as">✅ Конфігурація готова. Завантажте файл і надішліть розробнику.</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px">
+        <button class="btn btn-r btn-lg" onclick="dlConfig()">⬇ Завантажити config.json</button>
+        <button class="btn btn-d btn-lg" onclick="cpJson(this)">📋 Копіювати JSON</button>
+        <a class="btn btn-d btn-lg" href="https://t.me/znahidkawow" target="_blank">📩 Написати розробнику</a>
+      </div>
+      <div class="lbl" style="margin-bottom:8px">Попередній вигляд:</div>
+      <pre class="jprev" id="fin-json">…</pre>
+      <div class="snav"><button class="btn btn-g" onclick="go(4)">← Назад</button><div></div></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- JSON MODAL -->
+<div class="mbg" id="modal" onclick="if(event.target===this)hideM()">
+  <div class="mc">
+    <div class="mh"><strong>JSON конфігурація</strong><button class="btn btn-g btn-sm" onclick="hideM()">✕</button></div>
+    <pre class="jprev" id="m-json" style="max-height:70vh">…</pre>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════
+//  STATE
+// ════════════════════════════════
+const st = {
+  name:'', owner_chat_id:'', greeting:'', show_cart_btn:true,
+  address:{street:'',hours:'',phone:''},
+  categories:[], promo_codes:{}, faq:[]
+}
+const promos = []  // [{code, pct}]
+let _i=1; const uid=p=>`${p||'x'}${_i++}`
+
+// ════════════════════════════════
+//  TEMPLATES
+// ════════════════════════════════
+const TPLS = [
+  { icon:'☕', name:'Кафе / Їжа', data:{
+    name:'Кафе Аромат', greeting:'👋 Привіт, {name}!\n\nРаді бачити вас у нашому кафе! Оберіть розділ:',
+    categories:[{id:'drinks',name:'Напої',emoji:'☕',desc:'',useSubs:true,subcategories:[
+      {id:'hot',name:'Гарячі',emoji:'🔥',items:[
+        {id:'esp',name:'Еспресо',price:45,desc:'Класичний з арабіки. 30мл.',photo:''},
+        {id:'cap',name:'Капучино',price:70,desc:'З молочною піною. 250мл.',photo:''},
+        {id:'lat',name:'Латте',price:80,desc:'З парним молоком. 300мл.',photo:''},
+      ]},
+      {id:'cold',name:'Холодні',emoji:'🧊',items:[
+        {id:'brew',name:'Cold Brew',price:90,desc:'Холодна заварка 12год. 350мл.',photo:''},
+        {id:'ice',name:'Айс Латте',price:85,desc:'Латте з льодом. 350мл.',photo:''},
+      ]},
+    ],items:[]},
+    {id:'food',name:'Їжа',emoji:'🍽',desc:'',useSubs:false,subcategories:[],items:[
+      {id:'cheesecake',name:'Чізкейк',price:110,desc:'Класичний Нью-Йорк.',photo:''},
+      {id:'croissant',name:'Круасан',price:65,desc:'Свіжий щоранку.',photo:''},
+      {id:'toast',name:'Тост з авокадо',price:120,desc:'Яйце пашот, мікрозелень.',photo:''},
+    ]}],
+    faq:[{q:'Є доставка?',a:'Тільки самовивіз.'},{q:'Безготівковий?',a:'Так, карта/Apple Pay.'},{q:'Є WiFi?',a:'Так, безкоштовно. Пароль на стійці.'}]
+  }},
+  { icon:'💅', name:'Салон краси', data:{
+    name:'Beauty Studio', greeting:'👋 Привіт, {name}!\n\nОберіть послугу — і ми запишемо вас на зручний час:',
+    categories:[{id:'nails',name:'Манікюр',emoji:'💅',desc:'',useSubs:false,subcategories:[],items:[
+      {id:'manicure',name:'Манікюр класичний',price:350,desc:'Зняття + форма + покриття.',photo:''},
+      {id:'gel',name:'Нарощування гелем',price:650,desc:'Нігті під ключ.',photo:''},
+    ]},{id:'hair',name:'Волосся',emoji:'💇',desc:'',useSubs:false,subcategories:[],items:[
+      {id:'cut',name:'Стрижка',price:300,desc:'Будь-якої складності.',photo:''},
+      {id:'color',name:'Фарбування',price:700,desc:'Однотонне. Матеріал включено.',photo:''},
+    ]}],
+    faq:[{q:'Потрібен запис?',a:'Так. Оберіть послугу і ми зв\'яжемось.'},{q:'Де знаходитесь?',a:'Дивіться розділ Адреса.'}]
+  }},
+  { icon:'💐', name:'Квіти', data:{
+    name:'Квітковий магазин', greeting:'🌸 Привіт, {name}!\n\nОберіть букет або замовте своє:',
+    categories:[{id:'ready',name:'Готові букети',emoji:'💐',desc:'',useSubs:false,subcategories:[],items:[
+      {id:'b1',name:'Букет «Ніжність»',price:450,desc:'Троянди, евкаліпт.',photo:''},
+      {id:'b2',name:'Букет «Весна»',price:650,desc:'Піони, рускус, хризантема.',photo:''},
+      {id:'b3',name:'Букет «Преміум»',price:1200,desc:'Елітні квіти. Під замовлення.',photo:''},
+    ]},{id:'custom',name:'На замовлення',emoji:'✏️',desc:'',useSubs:false,subcategories:[],items:[
+      {id:'custom_any',name:'Авторський букет',price:0,desc:'Опишіть побажання у коментарі.',photo:''},
+    ]}],
+    faq:[{q:'Чи є доставка?',a:'Так, по місту. Вкажіть адресу у коментарі.'},{q:'Термін виготовлення?',a:'Готові — одразу. На замовлення — 2-3 год.'}]
+  }},
+  { icon:'👟', name:'Магазин одягу', data:{
+    name:'WOW Wear', greeting:'👋 Привіт, {name}!\n\nОберіть категорію:',
+    categories:[{id:'sneakers',name:'Кросівки',emoji:'👟',desc:'',useSubs:false,subcategories:[],items:[
+      {id:'nb530',name:'New Balance 530',price:2200,desc:'Оригінал. Розміри 36-45.',photo:''},
+      {id:'nb2000',name:'New Balance 2000',price:2800,desc:'Нова колекція.',photo:''},
+    ]},{id:'clothes',name:'Одяг',emoji:'👕',desc:'',useSubs:false,subcategories:[],items:[
+      {id:'hoodie',name:'Худі оверсайз',price:900,desc:'Унісекс, S-XL.',photo:''},
+      {id:'tee',name:'Футболка',price:450,desc:'Бавовна 100%, S-XL.',photo:''},
+    ]}],
+    faq:[{q:'Доставка?',a:'Нова Пошта, накладений платіж.'},{q:'Обмін/повернення?',a:'Протягом 14 днів.'}]
+  }},
+  { icon:'🔧', name:'Послуги', data:{
+    name:'Майстер на дільниці', greeting:'👋 Привіт, {name}!\n\nОберіть потрібну послугу:',
+    categories:[{id:'plumbing',name:'Сантехніка',emoji:'🔧',desc:'',useSubs:false,subcategories:[],items:[
+      {id:'tap',name:'Заміна крана',price:400,desc:'Матеріал оплачується окремо.',photo:''},
+      {id:'toilet',name:'Ремонт унітазу',price:500,desc:'Від виклику. Матеріал окремо.',photo:''},
+    ]},{id:'electric',name:'Електрика',emoji:'⚡',desc:'',useSubs:false,subcategories:[],items:[
+      {id:'socket',name:'Встановлення розетки',price:300,desc:'За штуку.',photo:''},
+      {id:'light',name:'Підключення люстри',price:350,desc:'До 3 ламп.',photo:''},
+    ]}],
+    faq:[{q:'Виїжджаєте по всьому місту?',a:'Так. Виклик безкоштовний.'},{q:'Коли можна?',a:'Щодня 08:00-21:00.'}]
+  }},
+]
+
+function renderTpls() {
+  document.getElementById('tpl-grid').innerHTML = TPLS.map((t,i) => `
+    <div class="tpl" onclick="applyTpl(${i})">
+      <div class="tpl-ico">${t.icon}</div>
+      <div class="tpl-name">${t.name}</div>
+    </div>
+  `).join('')
+}
+
+function applyTpl(i) {
+  const d = TPLS[i].data
+  st.name     = d.name
+  st.greeting = d.greeting
+  st.categories = JSON.parse(JSON.stringify(d.categories))
+  st.faq      = JSON.parse(JSON.stringify(d.faq))
+  // Update fields
+  document.getElementById('f-name').value  = st.name
+  document.getElementById('f-greet').value = st.greeting
+  renderCats(); renderFaq()
+}
+
+// ════════════════════════════════
+//  NAV
+// ════════════════════════════════
+let cur=0
+function go(i) {
+  document.getElementById(`s${cur}`).classList.remove('on')
+  document.getElementById(`n${cur}`).classList.remove('on')
+  document.getElementById(`s${i}`).classList.add('on')
+  document.getElementById(`n${i}`).classList.add('on')
+  cur=i; window.scrollTo(0,0)
+  if(i===5) refreshFin()
+}
+
+// ════════════════════════════════
+//  CART TOGGLE
+// ════════════════════════════════
+function togCart() {
+  st.show_cart_btn=!st.show_cart_btn
+  document.getElementById('cart-tog').classList.toggle('on',st.show_cart_btn)
+  document.getElementById('cart-lbl').textContent=st.show_cart_btn?'Показувати кнопку кошика':'Кошик прихований'
+}
+
+// ════════════════════════════════
+//  CATEGORIES
+// ════════════════════════════════
+function addCat(){st.categories.push({id:uid('cat'),name:'',emoji:'📦',desc:'',useSubs:false,subcategories:[],items:[]});renderCats()}
+function delCat(ci){st.categories.splice(ci,1);renderCats()}
+function togSubs(ci){st.categories[ci].useSubs=!st.categories[ci].useSubs;renderCats()}
+function addSub(ci){st.categories[ci].subcategories.push({id:uid('sub'),name:'',emoji:'📁',items:[]});renderCats()}
+function delSub(ci,si){st.categories[ci].subcategories.splice(si,1);renderCats()}
+function addItem(ci,si){
+  const it={id:uid('item'),name:'',price:0,desc:'',photo:''}
+  si===null?st.categories[ci].items.push(it):st.categories[ci].subcategories[si].items.push(it)
+  renderCats()
+}
+function delItem(ci,si,ii){
+  si===null?st.categories[ci].items.splice(ii,1):st.categories[ci].subcategories[si].items.splice(ii,1)
+  renderCats()
+}
+function sc(ci,f,v){st.categories[ci][f]=v}
+function ss(ci,si,f,v){st.categories[ci].subcategories[si][f]=v}
+function si2(ci,si,ii,f,v){
+  const it=si===null?st.categories[ci].items[ii]:st.categories[ci].subcategories[si].items[ii]
+  it[f]=f==='price'?(parseFloat(v)||0):v
+}
+
+function renderItem(it,ci,si,ii){
+  const sp=si===null?'null':si
+  return `<div style="background:var(--bg);border:1px solid var(--b);border-radius:7px;padding:11px;margin-bottom:7px">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:7px">
+      <button class="btn btn-x btn-sm" onclick="delItem(${ci},${sp},${ii})">✕</button>
+    </div>
+    <div class="gp" style="margin-bottom:9px">
+      <div><label class="lbl">Назва</label><input class="inp" value="${e(it.name)}" placeholder="Назва товару" oninput="si2(${ci},${sp},${ii},'name',this.value)"></div>
+      <div><label class="lbl">Ціна грн</label><input class="inp" type="number" min="0" value="${it.price}" oninput="si2(${ci},${sp},${ii},'price',this.value)"></div>
+    </div>
+    <div style="margin-bottom:9px"><label class="lbl">Опис</label><input class="inp" value="${e(it.desc)}" placeholder="Короткий опис..." oninput="si2(${ci},${sp},${ii},'desc',this.value)"></div>
+    <div><label class="lbl">Фото (URL, необов'язково)</label><input class="inp" value="${e(it.photo)}" placeholder="https://..." oninput="si2(${ci},${sp},${ii},'photo',this.value)"></div>
+  </div>`
+}
+
+function renderSubs(cat,ci){
+  return cat.subcategories.map((sub,si)=>`
+    <div class="nest">
+      <div class="ch">
+        <div class="ct"><span>${e(sub.emoji)||'📁'}</span>${e(sub.name)||'Підкатегорія'}<span class="badge">${sub.items.length}</span></div>
+        <button class="btn btn-x btn-sm" onclick="delSub(${ci},${si})">✕</button>
+      </div>
+      <div class="ge" style="margin-bottom:11px">
+        <div><label class="lbl">Емоджі</label><input class="inp" style="text-align:center;font-size:17px" value="${e(sub.emoji)}" placeholder="🔥" oninput="ss(${ci},${si},'emoji',this.value)"></div>
+        <div><label class="lbl">Назва</label><input class="inp" value="${e(sub.name)}" placeholder="Назва підкатегорії" oninput="ss(${ci},${si},'name',this.value)"></div>
+      </div>
+      ${sub.items.map((it,ii)=>renderItem(it,ci,si,ii)).join('')}
+      <button class="addbtn" onclick="addItem(${ci},${si})">＋ Товар</button>
+    </div>
+  `).join('')+`<button class="addbtn" onclick="addSub(${ci})">＋ Підкатегорія</button>`
+}
+
+function countItems(cat){return cat.useSubs?cat.subcategories.reduce((n,s)=>n+s.items.length,0):cat.items.length}
+
+function renderCats(){
+  const el=document.getElementById('cats')
+  if(!st.categories.length){el.innerHTML='<div style="text-align:center;padding:18px;color:var(--muted)">Категорій немає</div>';return}
+  el.innerHTML=st.categories.map((cat,ci)=>`
+    <div class="card">
+      <div class="ch">
+        <div class="ct"><span style="font-size:17px">${e(cat.emoji)||'📦'}</span>${e(cat.name)||'Категорія'}<span class="badge">${countItems(cat)}</span></div>
+        <button class="btn btn-x btn-sm" onclick="delCat(${ci})">✕ Видалити</button>
+      </div>
+      <div class="g2" style="margin-bottom:12px">
+        <div><label class="lbl">Назва *</label><input class="inp" value="${e(cat.name)}" placeholder="Напої, Послуги..." oninput="sc(${ci},'name',this.value)"></div>
+        <div class="ge">
+          <div><label class="lbl">Емоджі</label><input class="inp" style="text-align:center;font-size:17px" value="${e(cat.emoji)}" placeholder="☕" oninput="sc(${ci},'emoji',this.value)"></div>
+          <div><label class="lbl">Опис</label><input class="inp" value="${e(cat.desc)}" placeholder="Короткий..." oninput="sc(${ci},'desc',this.value)"></div>
+        </div>
+      </div>
+      <div class="div"></div>
+      <label class="trow" style="margin-bottom:13px" onclick="togSubs(${ci})">
+        <div class="tog ${cat.useSubs?'on':''}"></div>
+        <span style="font-size:13px">Є підкатегорії (Гарячі / Холодні...)</span>
+      </label>
+      ${cat.useSubs
+        ? renderSubs(cat,ci)
+        : cat.items.map((it,ii)=>renderItem(it,ci,null,ii)).join('')+`<button class="addbtn" style="margin-top:6px" onclick="addItem(${ci},null)">＋ Товар</button>`
+      }
+    </div>
+  `).join('')
+}
+
+// ════════════════════════════════
+//  PROMO CODES
+// ════════════════════════════════
+function addPromo(){promos.push({code:'',pct:10});renderPromos()}
+function delPromo(i){promos.splice(i,1);renderPromos()}
+function setPromo(i,f,v){promos[i][f]=f==='pct'?(parseInt(v)||0):v.toUpperCase()}
+
+function renderPromos(){
+  const el=document.getElementById('promos')
+  if(!promos.length){el.innerHTML='<div style="text-align:center;padding:16px;color:var(--muted)">Промокодів немає — необов\'язково</div>';return}
+  el.innerHTML=promos.map((p,i)=>`
+    <div class="card" style="margin-bottom:10px">
+      <div class="promo-row">
+        <div style="flex:1"><label class="lbl">Код (великі літери)</label><input class="inp" value="${e(p.code)}" placeholder="ЗНИЖКА10" oninput="setPromo(${i},'code',this.value.toUpperCase());this.value=this.value.toUpperCase()"></div>
+        <div class="promo-pct"><label class="lbl">Знижка %</label><input class="inp" type="number" min="1" max="99" value="${p.pct}" oninput="setPromo(${i},'pct',this.value)"></div>
+        <div style="padding-top:22px"><button class="btn btn-x btn-sm" onclick="delPromo(${i})">✕</button></div>
+      </div>
+      <div class="hint">Клієнт введе «${p.code||'КОД'}» під час замовлення → отримає −${p.pct}%</div>
+    </div>
+  `).join('')
+}
+
+// ════════════════════════════════
+//  FAQ
+// ════════════════════════════════
+function addFaq(){st.faq.push({q:'',a:''});renderFaq()}
+function delFaq(i){st.faq.splice(i,1);renderFaq()}
+function setFaq(i,f,v){st.faq[i][f]=v}
+
+function renderFaq(){
+  const el=document.getElementById('faqs')
+  if(!st.faq.length){el.innerHTML='<div style="text-align:center;padding:16px;color:var(--muted)">FAQ порожній — додайте 3-5 питань</div>';return}
+  el.innerHTML=st.faq.map((f,i)=>`
+    <div class="card" style="margin-bottom:11px">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:7px">
+        <button class="btn btn-x btn-sm" onclick="delFaq(${i})">✕</button>
+      </div>
+      <div class="fg"><label class="lbl">Питання</label><input class="inp" value="${e(f.q)}" placeholder="Є доставка?" oninput="setFaq(${i},'q',this.value)"></div>
+      <div><label class="lbl">Відповідь</label><textarea class="ta" style="min-height:64px" oninput="setFaq(${i},'a',this.value)">${e(f.a)}</textarea></div>
+    </div>
+  `).join('')
+}
+
+// ════════════════════════════════
+//  BUILD CONFIG
+// ════════════════════════════════
+function build(){
+  const pc={}; promos.forEach(p=>{if(p.code) pc[p.code]=p.pct})
+  const cfg={
+    name: st.name||'Мій бізнес',
+    owner_chat_id: st.owner_chat_id||'',
+    greeting: st.greeting||'👋 Привіт, {name}!\n\nОберіть розділ:',
+    welcome_photo: null,
+    show_cart_btn: st.show_cart_btn,
+    categories: st.categories.map(cat=>{
+      const out={id:cat.id,name:cat.name,emoji:cat.emoji,desc:cat.desc}
+      if(cat.useSubs){
+        out.subcategories=cat.subcategories.map(sub=>({
+          id:sub.id,name:sub.name,emoji:sub.emoji,
+          items:sub.items.map(it=>({id:it.id,name:it.name,price:it.price,desc:it.desc,photo:it.photo||null}))
+        }))
+      } else {
+        out.items=cat.items.map(it=>({id:it.id,name:it.name,price:it.price,desc:it.desc,photo:it.photo||null}))
+      }
+      return out
+    }),
+    faq: st.faq.filter(f=>f.q).map(f=>({q:f.q,a:f.a}))
+  }
+  if(Object.keys(pc).length) cfg.promo_codes=pc
+  if(st.address.street||st.address.hours||st.address.phone) cfg.address=st.address
+  return JSON.stringify(cfg,null,2)
+}
+
+function dlConfig(){
+  const a=document.createElement('a')
+  a.href=URL.createObjectURL(new Blob([build()],{type:'application/json;charset=utf-8'}))
+  a.download=(st.name||'bot').replace(/[^a-zA-Zа-яА-Я0-9]/g,'-').toLowerCase()+'-config.json'
+  document.body.appendChild(a);a.click();document.body.removeChild(a)
+}
+function cpJson(btn){
+  navigator.clipboard.writeText(build()).then(()=>{const t=btn.textContent;btn.textContent='✅ Скопійовано!';setTimeout(()=>btn.textContent=t,2000)})
+}
+function refreshFin(){document.getElementById('fin-json').textContent=build()}
+function showModal(){document.getElementById('m-json').textContent=build();document.getElementById('modal').style.display='block'}
+function hideM(){document.getElementById('modal').style.display='none'}
+
+function e(v){if(!v)return '';return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+
+// ════════════════════════════════
+//  INIT
+// ════════════════════════════════
+renderTpls(); renderCats(); renderFaq(); renderPromos()
+</script>
+</body>
+</html>

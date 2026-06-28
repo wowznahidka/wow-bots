@@ -1,0 +1,98 @@
+{
+  "name": "Кафе Аромат",
+  "owner_chat_id": "ВАШ_TELEGRAM_ID",
+  "extra_admins": [],
+  "greeting": "👋 Привіт, {name}!\n\nЯ бот *Кафе Аромат*. Замовляй онлайн — без черги!\n\nОберіть розділ:",
+  "welcome_photo": null,
+  "show_cart_btn": true,
+
+  "payment": {
+    "enabled": false,
+    "monobank_jar": "https://send.monobank.ua/jar/ВАШЕ_JAR_ID"
+  },
+
+  "loyalty": {
+    "enabled": true,
+    "points_per_100uah": 1,
+    "min_redeem": 100,
+    "value_per_point": 0.5
+  },
+
+  "promo_codes": {
+    "ЗНИЖКА10": 10,
+    "VIP20": 20
+  },
+
+  "address": {
+    "street": "вул. Хрещатик 1, Київ",
+    "hours": "Пн-Пт 08:00-22:00 | Сб-Нд 09:00-21:00",
+    "phone": "+380 99 123 45 67"
+  },
+
+  "categories": [
+    {
+      "id": "drinks",
+      "name": "Напої",
+      "emoji": "☕",
+      "desc": "Гарячі та холодні напої",
+      "subcategories": [
+        {
+          "id": "hot",
+          "name": "Гарячі",
+          "emoji": "🔥",
+          "items": [
+            {"id": "esp", "name": "Еспресо", "price": 45, "desc": "Класичний еспресо з арабіки. 30мл.", "photo": null, "in_stock": true},
+            {"id": "cap", "name": "Капучино", "price": 70, "desc": "З ніжною молочною піною. 250мл.", "photo": null, "in_stock": true},
+            {"id": "lat", "name": "Латте", "price": 80, "desc": "З парним молоком. 300мл.", "photo": null, "in_stock": true}
+          ]
+        },
+        {
+          "id": "cold",
+          "name": "Холодні",
+          "emoji": "🧊",
+          "items": [
+            {"id": "cold_brew", "name": "Cold Brew", "price": 90, "desc": "Холодна заварка 12 год. 350мл.", "photo": null, "in_stock": true},
+            {"id": "ice_lat", "name": "Айс Латте", "price": 85, "desc": "Латте з кубиками льоду. 350мл.", "photo": null, "in_stock": true}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "food",
+      "name": "Їжа",
+      "emoji": "🍽",
+      "desc": "Десерти та снеки",
+      "items": [
+        {"id": "cheesecake", "name": "Чізкейк Нью-Йорк", "price": 110, "desc": "Класичний вершковий чізкейк.", "photo": null, "in_stock": true},
+        {"id": "croissant", "name": "Круасан з маслом", "price": 65, "desc": "Свіжий щоранку.", "photo": null, "in_stock": false}
+      ]
+    },
+    {
+      "id": "clothes_example",
+      "name": "Одяг (приклад варіантів)",
+      "emoji": "👕",
+      "desc": "Приклад товару з варіантами (розмір + колір)",
+      "items": [
+        {
+          "id": "hoodie",
+          "name": "Худі оверсайз",
+          "price": 900,
+          "desc": "Якісна бавовна 100%. Унісекс.",
+          "photo": null,
+          "in_stock": true,
+          "variants": {
+            "Розмір": ["S", "M", "L", "XL"],
+            "Колір": ["Чорний", "Білий", "Хакі"]
+          }
+        }
+      ]
+    }
+  ],
+
+  "faq": [
+    {"q": "Є доставка?", "a": "На жаль, доставки немає. Тільки самовивіз або у нас."},
+    {"q": "Можна безготівково?", "a": "Так! Карткою, Apple Pay, Google Pay."},
+    {"q": "Є WiFi?", "a": "Так, безкоштовний. Пароль на стійці."},
+    {"q": "Резервація?", "a": "Напишіть нам або натисніть «Послуги → Бронювання столика»."}
+  ]
+}

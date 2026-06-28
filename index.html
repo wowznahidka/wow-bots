@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WOW Bots — Telegram-бот для вашого бізнесу</title>
+  <meta name="description" content="Telegram-бот для малого бізнесу за 24 години. Каталог, замовлення, сповіщення. Від 1500 грн.">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #FF3E3E;
+      --dark: #0F0F0F;
+      --gray: #888;
+      --light: #F5F5F7;
+      --white: #fff;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    body { font-family: var(--font); background: var(--dark); color: var(--white); overflow-x: hidden; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 40px;
+      background: rgba(15,15,15,0.85); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .logo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .logo span { color: var(--red); }
+    .nav-cta {
+      background: var(--red); color: var(--white); border: none;
+      padding: 10px 24px; border-radius: 100px; font-size: 14px;
+      font-weight: 700; cursor: pointer; text-decoration: none;
+      transition: opacity .2s;
+    }
+    .nav-cta:hover { opacity: .85; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; text-align: center;
+      padding: 120px 24px 80px;
+      background: radial-gradient(ellipse at 50% 0%, rgba(255,62,62,0.12) 0%, transparent 65%);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 18px; border-radius: 100px; font-size: 13px; color: var(--gray);
+      margin-bottom: 32px;
+    }
+    .hero-badge .dot { width: 8px; height: 8px; background: #00C853; border-radius: 50%; }
+    h1 {
+      font-size: clamp(40px, 7vw, 80px);
+      font-weight: 900; line-height: 1.05;
+      letter-spacing: -2px; margin-bottom: 24px;
+      max-width: 800px;
+    }
+    h1 em { color: var(--red); font-style: normal; }
+    .hero-sub {
+      font-size: clamp(17px, 2.5vw, 22px); color: var(--gray);
+      max-width: 560px; line-height: 1.6; margin-bottom: 48px;
+    }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .btn-primary {
+      background: var(--red); color: var(--white);
+      padding: 18px 40px; border-radius: 100px;
+      font-size: 17px; font-weight: 700; text-decoration: none;
+      transition: transform .2s, opacity .2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); opacity: .9; }
+    .btn-outline {
+      border: 1px solid rgba(255,255,255,0.2); color: var(--white);
+      padding: 18px 40px; border-radius: 100px;
+      font-size: 17px; font-weight: 600; text-decoration: none;
+      transition: border-color .2s;
+    }
+    .btn-outline:hover { border-color: rgba(255,255,255,0.5); }
+
+    /* DEMO PHONE */
+    .demo-wrap {
+      margin-top: 72px; position: relative; display: flex; justify-content: center;
+    }
+    .phone {
+      width: 280px; background: #1A1A2E;
+      border-radius: 36px; padding: 20px 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+    .phone-header {
+      display: flex; align-items: center; gap: 10px;
+      padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 14px;
+    }
+    .phone-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--red); display: flex; align-items: center;
+      justify-content: center; font-size: 16px;
+    }
+    .phone-name { font-size: 14px; font-weight: 700; }
+    .phone-status { font-size: 11px; color: #00C853; }
+    .msg { margin-bottom: 10px; }
+    .msg-bot {
+      background: rgba(255,255,255,0.07); border-radius: 4px 16px 16px 16px;
+      padding: 10px 14px; font-size: 13px; line-height: 1.5;
+      max-width: 220px; color: rgba(255,255,255,0.9);
+    }
+    .msg-user {
+      display: flex; justify-content: flex-end;
+    }
+    .msg-user-bubble {
+      background: #2979FF; border-radius: 16px 4px 16px 16px;
+      padding: 10px 14px; font-size: 13px; max-width: 180px;
+    }
+    .phone-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .phone-btn {
+      background: rgba(255,255,255,0.08); border-radius: 10px;
+      padding: 10px; text-align: center; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: 1px solid rgba(255,255,255,0.06);
+    }
+    .phone-btn.red { background: rgba(255,62,62,0.15); color: var(--red); border-color: rgba(255,62,62,0.2); }
+
+    /* HOW IT WORKS */
+    .section { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 12px; font-weight: 700; letter-spacing: 2px;
+      color: var(--red); text-transform: uppercase; margin-bottom: 16px;
+    }
+    h2 {
+      font-size: clamp(32px, 5vw, 56px); font-weight: 900;
+      letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 64px;
+    }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .step {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 20px; padding: 32px;
+      transition: border-color .2s;
+    }
+    .step:hover { border-color: rgba(255,62,62,0.3); }
+    .step-num {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: var(--red); display: flex; align-items: center;
+      justify-content: center; font-size: 16px; font-weight: 900;
+      margin-bottom: 20px;
+    }
+    .step h3 { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+    .step p { font-size: 15px; color: var(--gray); line-height: 1.6; }
+
+    /* FEATURES */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .feat {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px; padding: 28px;
+    }
+    .feat-icon { font-size: 28px; margin-bottom: 14px; }
+    .feat h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+    .feat p { font-size: 14px; color: var(--gray); line-height: 1.5; }
+
+    /* CATEGORIES */
+    .cats { display: flex; flex-wrap: wrap; gap: 12px; }
+    .cat {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 100px; padding: 10px 22px; font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+    }
+    .cat:hover, .cat.active { background: var(--red); border-color: var(--red); }
+
+    /* PRICING */
+    .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .plan {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 24px; padding: 36px; position: relative;
+    }
+    .plan.featured {
+      background: rgba(255,62,62,0.08); border-color: var(--red);
+    }
+    .plan-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--red); color: var(--white); font-size: 12px; font-weight: 800;
+      padding: 4px 16px; border-radius: 100px; letter-spacing: 0.5px;
+    }
+    .plan-name { font-size: 14px; color: var(--gray); font-weight: 600; margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase; }
+    .plan-price { font-size: 48px; font-weight: 900; letter-spacing: -2px; margin-bottom: 4px; }
+    .plan-price sup { font-size: 20px; vertical-align: top; margin-top: 10px; }
+    .plan-per { font-size: 13px; color: var(--gray); margin-bottom: 28px; }
+    .plan-features { list-style: none; margin-bottom: 32px; }
+    .plan-features li {
+      padding: 8px 0; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; gap: 10px; align-items: center;
+    }
+    .plan-features li:last-child { border-bottom: none; }
+    .check { color: #00C853; font-size: 16px; }
+    .plan-btn {
+      display: block; text-align: center; padding: 16px;
+      border-radius: 100px; font-size: 15px; font-weight: 700;
+      text-decoration: none; transition: opacity .2s;
+    }
+    .plan-btn-outline { border: 1px solid rgba(255,255,255,0.2); color: var(--white); }
+    .plan-btn-filled { background: var(--red); color: var(--white); }
+    .plan-btn:hover { opacity: .8; }
+
+    /* CTA FORM */
+    .cta-section {
+      background: rgba(255,62,62,0.06); border: 1px solid rgba(255,62,62,0.15);
+      border-radius: 28px; padding: 64px 40px; text-align: center;
+      max-width: 680px; margin: 0 auto 100px;
+    }
+    .cta-section h2 { margin-bottom: 16px; }
+    .cta-section p { color: var(--gray); font-size: 17px; margin-bottom: 40px; }
+    .form { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+    .form input, .form select, .form textarea {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      color: var(--white); padding: 16px 20px; border-radius: 14px;
+      font-size: 15px; font-family: var(--font); outline: none; width: 100%;
+      transition: border-color .2s;
+    }
+    .form input::placeholder, .form textarea::placeholder { color: var(--gray); }
+    .form input:focus, .form select:focus, .form textarea:focus { border-color: var(--red); }
+    .form select option { background: #1a1a1a; }
+    .form textarea { height: 100px; resize: none; }
+    .submit-btn {
+      background: var(--red); color: var(--white); border: none;
+      padding: 18px; border-radius: 14px; font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: opacity .2s; width: 100%;
+    }
+    .submit-btn:hover { opacity: .85; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 40px 24px; text-align: center; color: var(--gray); font-size: 14px;
+    }
+    footer a { color: var(--red); text-decoration: none; }
+
+    @media (max-width: 600px) {
+      nav { padding: 16px 20px; }
+      h1 { letter-spacing: -1px; }
+      .cta-section { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">WOW <span>Bots</span></div>
+  <a href="#order" class="nav-cta">Замовити бот</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Готово за 24 години
+  </div>
+  <h1>Telegram-бот для<br>твого бізнесу — <em>з нуля</em></h1>
+  <p class="hero-sub">Каталог, прийом замовлень, повідомлення власнику. Клієнти пишуть боту — ти отримуєш замовлення.</p>
+  <div class="hero-actions">
+    <a href="#order" class="btn-primary">Замовити за 1 500 грн</a>
+    <a href="#demo" class="btn-outline">Подивитись демо</a>
+  </div>
+
+  <!-- Phone demo -->
+  <div class="demo-wrap" id="demo">
+    <div class="phone">
+      <div class="phone-header">
+        <div class="phone-avatar">☕</div>
+        <div>
+          <div class="phone-name">Кафе Аромат</div>
+          <div class="phone-status">● онлайн</div>
+        </div>
+      </div>
+      <div class="msg">
+        <div class="msg-bot">👋 Привіт! Я бот кафе <b>Аромат</b>.<br>Оберіть що вас цікавить:</div>
+      </div>
+      <div class="phone-btns">
+        <div class="phone-btn">☕ Меню</div>
+        <div class="phone-btn">📦 Зробити замовлення</div>
+        <div class="phone-btn red">📍 Адреса та час роботи</div>
+      </div>
+      <div class="msg" style="margin-top:14px">
+        <div class="msg-user">
+          <div class="msg-user-bubble">☕ Меню</div>
+        </div>
+      </div>
+      <div class="msg" style="margin-top:6px">
+        <div class="msg-bot">
+          <b>Наше меню:</b><br><br>
+          Еспресо — 45 грн<br>
+          Американо — 55 грн<br>
+          Капучино — 70 грн<br>
+          Латте — 80 грн<br><br>
+          👆 Оберіть для замовлення
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <p class="section-label">Як це працює</p>
+  <h2>Три кроки до<br>власного бота</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Заповни форму</h3>
+      <p>Вказуєш категорію бізнесу, товари або послуги, ціни та контакти. Займає 5 хвилин.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Ми налаштовуємо</h3>
+      <p>Протягом 24 годин налаштовуємо бот під твій бізнес і передаємо доступ.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Клієнти пишуть</h3>
+      <p>Ділишся ботом з клієнтами. Вони замовляють — ти отримуєш сповіщення в Telegram.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" style="padding-top: 0;">
+  <p class="section-label">Можливості</p>
+  <h2>Що вміє бот</h2>
+  <div class="features">
+    <div class="feat">
+      <div class="feat-icon">📋</div>
+      <h3>Каталог товарів</h3>
+      <p>Показує меню, ціни, фото. Клієнт гортає і обирає без дзвінків.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🛒</div>
+      <h3>Прийом замовлень</h3>
+      <p>Клієнт натискає кнопку → тобі приходить замовлення з ім'ям і контактом.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">📍</div>
+      <h3>Адреса та графік</h3>
+      <p>Автоматично відповідає де знаходитесь і коли працюєте.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">💬</div>
+      <h3>FAQ автопілот</h3>
+      <p>Відповідає на часті питання без участі людини. Звільняє твій час.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🔔</div>
+      <h3>Сповіщення власнику</h3>
+      <p>Кожне замовлення — миттєве повідомлення тобі в Telegram.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">⚡</div>
+      <h3>Оновлення за 1 год</h3>
+      <p>Хочеш змінити ціну або добавити товар — напиши нам, зробимо швидко.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="section" style="padding-top: 0;">
+  <p class="section-label">Підходить для</p>
+  <h2>Будь-який бізнес</h2>
+  <div class="cats">
+    <div class="cat active">☕ Кафе і ресторани</div>
+    <div class="cat">💇 Барбершоп / Салон</div>
+    <div class="cat">👟 Магазин одягу</div>
+    <div class="cat">🍕 Доставка їжі</div>
+    <div class="cat">🔧 Сервісний центр</div>
+    <div class="cat">💅 Манікюр / Краса</div>
+    <div class="cat">🏋️ Фітнес / Тренер</div>
+    <div class="cat">🏠 Нерухомість</div>
+    <div class="cat">🎂 Кондитерська</div>
+    <div class="cat">+ будь-який інший</div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" style="padding-top: 0;">
+  <p class="section-label">Ціни</p>
+  <h2>Просто і чесно</h2>
+  <div class="pricing">
+    <div class="plan">
+      <div class="plan-name">Старт</div>
+      <div class="plan-price"><sup>₴</sup>1 500</div>
+      <div class="plan-per">разова оплата</div>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> Каталог до 20 позицій</li>
+        <li><span class="check">✓</span> Кнопка замовлення</li>
+        <li><span class="check">✓</span> Адреса і графік</li>
+        <li><span class="check">✓</span> Готово за 24 год</li>
+        <li><span class="check">✓</span> 1 місяць підтримки</li>
+      </ul>
+      <a href="#order" class="plan-btn plan-btn-outline">Замовити</a>
+    </div>
+    <div class="plan featured">
+      <div class="plan-badge">ПОПУЛЯРНИЙ</div>
+      <div class="plan-name">Про</div>
+      <div class="plan-price"><sup>₴</sup>2 500</div>
+      <div class="plan-per">разова + 300 грн/міс</div>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> Каталог необмежено</li>
+        <li><span class="check">✓</span> Прийом замовлень</li>
+        <li><span class="check">✓</span> FAQ автопілот</li>
+        <li><span class="check">✓</span> Фото товарів</li>
+        <li><span class="check">✓</span> Сповіщення власнику</li>
+        <li><span class="check">✓</span> Оновлення без обмежень</li>
+      </ul>
+      <a href="#order" class="plan-btn plan-btn-filled">Замовити</a>
+    </div>
+  </div>
+</section>
+
+<!-- ORDER FORM -->
+<div class="section" id="order" style="padding-top: 0;">
+  <div class="cta-section">
+    <p class="section-label">Замовлення</p>
+    <h2>Запустимо бот<br>за 24 год</h2>
+    <p>Заповни форму — ми зв'яжемось протягом 2 годин</p>
+    <form class="form" id="orderForm">
+      <input type="text" placeholder="Ваше ім'я або назва бізнесу" required>
+      <input type="tel" placeholder="Telegram або телефон для зв'язку" required>
+      <select required>
+        <option value="" disabled selected>Категорія бізнесу</option>
+        <option>Кафе / Ресторан</option>
+        <option>Барбершоп / Салон</option>
+        <option>Магазин одягу / взуття</option>
+        <option>Доставка їжі</option>
+        <option>Сервісний центр</option>
+        <option>Краса / Манікюр</option>
+        <option>Фітнес / Тренер</option>
+        <option>Інше</option>
+      </select>
+      <textarea placeholder="Коротко опишіть що потрібно (необов'язково)"></textarea>
+      <button type="submit" class="submit-btn">Замовити бот — від 1 500 грн</button>
+    </form>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 WOW Bots — <a href="https://t.me/wow_znahidka" target="_blank">@wow.znahidka</a></p>
+</footer>
+
+<script>
+  // Category selector
+  document.querySelectorAll('.cat').forEach(cat => {
+    cat.addEventListener('click', () => {
+      document.querySelectorAll('.cat').forEach(c => c.classList.remove('active'));
+      cat.classList.add('active');
+    });
+  });
+
+  // Form submit → send to Telegram
+  document.getElementById('orderForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const inputs = e.target.querySelectorAll('input, select, textarea');
+    const name = inputs[0].value;
+    const contact = inputs[1].value;
+    const category = inputs[2].value;
+    const desc = inputs[3].value;
+
+    const btn = e.target.querySelector('.submit-btn');
+    btn.textContent = 'Відправляємо...';
+    btn.disabled = true;
+
+    try {
+      const BOT_TOKEN = 'ЗАМІНИТИ_НА_ТОКЕН';
+      const CHAT_ID = 'ЗАМІНИТИ_НА_CHAT_ID';
+      const text = `🤖 Нова заявка на бот!\n\nІм'я: ${name}\nКонтакт: ${contact}\nКатегорія: ${category}\nОпис: ${desc || 'не вказано'}`;
+
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: CHAT_ID, text })
+      });
+
+      btn.textContent = '✅ Заявку відправлено! Зв\'яжемось протягом 2 год';
+      btn.style.background = '#00C853';
+    } catch {
+      btn.textContent = 'Помилка. Напишіть нам в Telegram';
+      btn.style.background = '#555';
+    }
+  });
+</script>
+</body>
+</html>
