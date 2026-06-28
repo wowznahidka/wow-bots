@@ -1,0 +1,6 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "cp wow_znahidka_config.json config.json && python bot.py"
+restartPolicyType = "always"

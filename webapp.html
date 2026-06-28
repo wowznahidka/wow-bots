@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>WOW Znahidka 👟</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --card: #1a1a1a;
+    --accent: #fff;
+    --sub: #888;
+    --border: #2a2a2a;
+    --price: #e0e0e0;
+    --green: #30d158;
+    --red: #ff453a;
+    --tab-h: 52px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); color: var(--accent); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+  /* HEADER */
+  .header { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .header-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 8px; }
+  .logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+  .logo span { color: var(--sub); font-weight: 400; font-size: 14px; }
+  .cart-btn { position: relative; background: none; border: 1.5px solid var(--border); border-radius: 20px; padding: 6px 14px; color: var(--accent); font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .cart-btn.has-items { border-color: var(--accent); }
+  .badge { background: var(--green); color: #000; font-size: 11px; font-weight: 700; border-radius: 10px; padding: 1px 6px; }
+
+  /* TABS */
+  .tabs { display: flex; overflow-x: auto; padding: 0 12px 10px; gap: 8px; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex-shrink: 0; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border); color: var(--sub); background: none; transition: all .15s; }
+  .tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  /* PRODUCTS */
+  .products { padding: 12px 12px 120px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .card { background: var(--card); border-radius: 16px; overflow: hidden; cursor: pointer; position: relative; transition: transform .1s; }
+  .card:active { transform: scale(.97); }
+  .card-img { width: 100%; aspect-ratio: 1; background: #252525; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+  .card-body { padding: 10px 12px 12px; }
+  .card-name { font-size: 13px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; }
+  .card-price { font-size: 15px; font-weight: 700; color: var(--price); }
+  .card-add { margin-top: 8px; width: 100%; background: var(--accent); color: #000; border: none; border-radius: 10px; padding: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .card-sub { font-size: 11px; color: var(--sub); margin-bottom: 2px; }
+  .in-cart-badge { position: absolute; top: 8px; right: 8px; background: var(--green); color: #000; font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 7px; }
+
+  /* BOTTOM SHEET (size picker) */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .overlay.show { opacity: 1; pointer-events: all; }
+  .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 201; background: #1c1c1e; border-radius: 20px 20px 0 0; padding: 20px 16px 40px; transform: translateY(100%); transition: transform .25s cubic-bezier(.4,0,.2,1); max-height: 85vh; overflow-y: auto; }
+  .sheet.show { transform: translateY(0); }
+  .sheet-handle { width: 36px; height: 4px; background: #444; border-radius: 2px; margin: 0 auto 16px; }
+  .sheet-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .sheet-price { font-size: 22px; font-weight: 800; margin-bottom: 16px; }
+  .sheet-label { font-size: 12px; color: var(--sub); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+  .sizes { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .size-btn { min-width: 48px; height: 44px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--card); color: var(--accent); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .1s; }
+  .size-btn.selected { background: var(--accent); color: #000; border-color: var(--accent); }
+  .size-btn:active { transform: scale(.93); }
+  .sheet-add { width: 100%; background: var(--accent); color: #000; border: none; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 700; cursor: pointer; }
+  .sheet-add:disabled { background: #333; color: #666; cursor: default; }
+
+  /* CART PAGE */
+  .cart-page { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 300; overflow-y: auto; }
+  .cart-page.show { display: block; }
+  .cart-header { position: sticky; top: 0; background: var(--bg); border-bottom: 1px solid var(--border); padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+  .back-btn { background: none; border: none; color: var(--accent); font-size: 24px; cursor: pointer; line-height: 1; }
+  .cart-title { font-size: 17px; font-weight: 700; }
+  .cart-items { padding: 12px 16px; }
+  .cart-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .cart-item-emoji { font-size: 32px; width: 48px; text-align: center; }
+  .cart-item-info { flex: 1; min-width: 0; }
+  .cart-item-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .cart-item-var { font-size: 12px; color: var(--sub); }
+  .cart-item-price { font-size: 13px; font-weight: 700; margin-top: 2px; }
+  .qty-ctrl { display: flex; align-items: center; gap: 8px; }
+  .qty-btn { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--card); color: var(--accent); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .qty-num { font-size: 15px; font-weight: 700; min-width: 20px; text-align: center; }
+  .cart-note-section { padding: 0 16px 12px; }
+  .cart-note-label { font-size: 12px; color: var(--sub); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .cart-note { width: 100%; background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; color: var(--accent); font-size: 14px; padding: 10px 12px; resize: none; height: 70px; font-family: inherit; }
+  .cart-note:focus { outline: none; border-color: #555; }
+  .cart-total { margin: 16px 16px 100px; background: var(--card); border-radius: 16px; padding: 16px; }
+  .cart-total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .cart-total-label { font-size: 14px; color: var(--sub); }
+  .cart-total-val { font-size: 14px; font-weight: 600; }
+  .cart-total-big { font-size: 20px; font-weight: 800; }
+  .cart-empty { text-align: center; padding: 80px 20px; color: var(--sub); }
+  .cart-empty-icon { font-size: 64px; margin-bottom: 16px; }
+  .cart-empty-text { font-size: 16px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">WOW Znahidka <span>👟</span></div>
+    <button class="cart-btn" id="cartBtn" onclick="openCart()">
+      🛒 <span id="cartCount">0</span>
+      <span class="badge" id="cartBadge" style="display:none">0</span>
+    </button>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</div>
+
+<div class="products" id="products"></div>
+
+<!-- SIZE PICKER -->
+<div class="overlay" id="overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="sheetName"></div>
+  <div class="sheet-price" id="sheetPrice"></div>
+  <div class="sheet-label">Розмір (EU)</div>
+  <div class="sizes" id="sizes"></div>
+  <button class="sheet-add" id="sheetAddBtn" disabled onclick="addToCart()">Оберіть розмір</button>
+</div>
+
+<!-- CART PAGE -->
+<div class="cart-page" id="cartPage">
+  <div class="cart-header">
+    <button class="back-btn" onclick="closeCart()">‹</button>
+    <div class="cart-title">Кошик</div>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-note-section">
+    <div class="cart-note-label">Коментар до замовлення</div>
+    <textarea class="cart-note" id="cartNote" placeholder="Адреса НП, номер відділення, побажання..."></textarea>
+  </div>
+  <div class="cart-total" id="cartTotalBlock"></div>
+</div>
+
+<script>
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
+
+const CATALOG = [
+  {
+    id: 'new_balance', name: 'New Balance', emoji: '🔵',
+    items: [
+      { id: 'nb530_white', name: 'NB 530 White', sub: 'New Balance', price: 2200, emoji: '👟', sizes: ['36','37','38','39','40','41','42','43','44','45'] },
+      { id: 'nb530_grey',  name: 'NB 530 Grey',  sub: 'New Balance', price: 2200, emoji: '👟', sizes: ['36','37','38','39','40','41','42','43','44','45'] },
+      { id: 'nb2000_black',name: 'NB 2000 Black', sub: 'New Balance', price: 2800, emoji: '⚡', sizes: ['36','37','38','39','40','41','42','43','44','45'] },
+      { id: 'nb2000_white',name: 'NB 2000 White', sub: 'New Balance', price: 2800, emoji: '⚡', sizes: ['36','37','38','39','40','41','42','43','44','45'] },
+      { id: 'nb574',      name: 'NB 574',         sub: 'New Balance', price: 1900, emoji: '👟', sizes: ['36','37','38','39','40','41','42','43','44','45'] },
+      { id: 'nb1906r',    name: 'NB 1906R',        sub: 'New Balance', price: 3200, emoji: '👟', sizes: ['36','37','38','39','40','41','42','43','44','45'] },
+    ]
+  },
+  {
+    id: 'balenciaga', name: 'Balenciaga', emoji: '🖤',
+    items: [
+      { id: 'balenciaga_runner', name: 'Balenciaga Runner', sub: 'Balenciaga', price: 3800, emoji: '🖤', sizes: ['36','37','38','39','40','41','42','43','44','45'] },
+      { id: 'balenciaga_track',  name: 'Balenciaga Track',  sub: 'Balenciaga', price: 4200, emoji: '🖤', sizes: ['36','37','38','39','40','41','42','43','44','45'] },
+    ]
+  },
+  {
+    id: 'nike', name: 'Nike', emoji: '✔️',
+    items: [
+      { id: 'nike_dunk_low',    name: 'Nike Dunk Low',    sub: 'Nike', price: 2600, emoji: '✔️', sizes: ['36','37','38','39','40','41','42','43','44','45'] },
+      { id: 'nike_airmax_270',  name: 'Air Max 270',      sub: 'Nike', price: 2900, emoji: '✔️', sizes: ['36','37','38','39','40','41','42','43','44','45'] },
+      { id: 'jordan1_low',      name: 'Jordan 1 Low',     sub: 'Nike', price: 3100, emoji: '✔️', sizes: ['36','37','38','39','40','41','42','43','44','45'] },
+    ]
+  },
+  {
+    id: 'adidas', name: 'Adidas', emoji: '⚫',
+    items: [
+      { id: 'yeezy_350',    name: 'Yeezy 350 V2',  sub: 'Adidas', price: 3500, emoji: '⚫', sizes: ['36','37','38','39','40','41','42','43','44','45'] },
+      { id: 'adidas_samba', name: 'Adidas Samba OG', sub: 'Adidas', price: 2100, emoji: '⚫', sizes: ['36','37','38','39','40','41','42','43','44','45'] },
+    ]
+  }
+];
+
+let activeTab = 'new_balance';
+let cart = [];  // [{item, size, qty}]
+let sheetItem = null;
+let sheetSize = null;
+
+// ── Render tabs ──
+function renderTabs() {
+  const el = document.getElementById('tabs');
+  el.innerHTML = CATALOG.map(c =>
+    `<button class="tab${c.id === activeTab ? ' active' : ''}" onclick="switchTab('${c.id}')">${c.emoji} ${c.name}</button>`
+  ).join('');
+}
+
+// ── Render products ──
+function renderProducts() {
+  const cat = CATALOG.find(c => c.id === activeTab);
+  if (!cat) return;
+  const el = document.getElementById('products');
+  el.innerHTML = cat.items.map(item => {
+    const inCart = cart.reduce((s, e) => s + (e.item.id === item.id ? e.qty : 0), 0);
+    return `<div class="card" onclick="openSheet('${item.id}')">
+      ${inCart ? `<div class="in-cart-badge">${inCart} в кошику</div>` : ''}
+      <div class="card-img">${item.emoji}</div>
+      <div class="card-body">
+        <div class="card-sub">${item.sub}</div>
+        <div class="card-name">${item.name}</div>
+        <div class="card-price">${item.price.toLocaleString()} грн</div>
+        <button class="card-add" onclick="event.stopPropagation(); openSheet('${item.id}')">Вибрати розмір →</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function switchTab(id) {
+  activeTab = id;
+  renderTabs();
+  renderProducts();
+}
+
+// ── Size picker ──
+function openSheet(itemId) {
+  sheetItem = CATALOG.flatMap(c => c.items).find(i => i.id === itemId);
+  sheetSize = null;
+  document.getElementById('sheetName').textContent = sheetItem.name;
+  document.getElementById('sheetPrice').textContent = sheetItem.price.toLocaleString() + ' грн';
+  renderSizes();
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('sheet').classList.add('show');
+}
+
+function closeSheet() {
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('sheet').classList.remove('show');
+}
+
+function renderSizes() {
+  const el = document.getElementById('sizes');
+  el.innerHTML = sheetItem.sizes.map(s =>
+    `<button class="size-btn${sheetSize === s ? ' selected' : ''}" onclick="pickSize('${s}')">${s}</button>`
+  ).join('');
+  updateSheetBtn();
+}
+
+function pickSize(s) {
+  sheetSize = s;
+  renderSizes();
+}
+
+function updateSheetBtn() {
+  const btn = document.getElementById('sheetAddBtn');
+  btn.disabled = !sheetSize;
+  btn.textContent = sheetSize ? `Додати розмір ${sheetSize} в кошик` : 'Оберіть розмір';
+}
+
+function addToCart() {
+  if (!sheetItem || !sheetSize) return;
+  const existing = cart.find(e => e.item.id === sheetItem.id && e.size === sheetSize);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({ item: sheetItem, size: sheetSize, qty: 1 });
+  }
+  closeSheet();
+  updateCartUI();
+  renderProducts();
+  tg.HapticFeedback.notificationOccurred('success');
+}
+
+// ── Cart UI ──
+function updateCartUI() {
+  const total = cart.reduce((s, e) => s + e.qty, 0);
+  const sum   = cart.reduce((s, e) => s + e.item.price * e.qty, 0);
+  document.getElementById('cartCount').textContent = total;
+  const badge = document.getElementById('cartBadge');
+  badge.textContent = total;
+  badge.style.display = total > 0 ? '' : 'none';
+  document.getElementById('cartBtn').classList.toggle('has-items', total > 0);
+
+  if (total > 0) {
+    tg.MainButton.setText(`Оформити замовлення — ${sum.toLocaleString()} грн`);
+    tg.MainButton.show();
+    tg.MainButton.color = '#ffffff';
+    tg.MainButton.textColor = '#000000';
+  } else {
+    tg.MainButton.hide();
+  }
+}
+
+// ── Cart page ──
+function openCart() {
+  renderCartPage();
+  document.getElementById('cartPage').classList.add('show');
+}
+
+function closeCart() {
+  document.getElementById('cartPage').classList.remove('show');
+}
+
+function renderCartPage() {
+  const el = document.getElementById('cartItems');
+  if (!cart.length) {
+    el.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><div class="cart-empty-text">Кошик порожній</div></div>`;
+    document.getElementById('cartTotalBlock').innerHTML = '';
+    return;
+  }
+  el.innerHTML = cart.map((e, i) => `
+    <div class="cart-item">
+      <div class="cart-item-emoji">${e.item.emoji}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${e.item.name}</div>
+        <div class="cart-item-var">Розмір EU ${e.size}</div>
+        <div class="cart-item-price">${(e.item.price * e.qty).toLocaleString()} грн</div>
+      </div>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="changeQty(${i}, -1)">−</button>
+        <div class="qty-num">${e.qty}</div>
+        <button class="qty-btn" onclick="changeQty(${i}, +1)">+</button>
+      </div>
+    </div>`).join('');
+
+  const subtotal = cart.reduce((s, e) => s + e.item.price * e.qty, 0);
+  const count    = cart.reduce((s, e) => s + e.qty, 0);
+  document.getElementById('cartTotalBlock').innerHTML = `
+    <div class="cart-total-row"><span class="cart-total-label">Товарів</span><span class="cart-total-val">${count} шт</span></div>
+    <div class="cart-total-row"><span class="cart-total-label">Доставка</span><span class="cart-total-val">накладений платіж</span></div>
+    <div class="cart-total-row" style="margin-top:8px;padding-top:8px;border-top:1px solid #333">
+      <span class="cart-total-label" style="font-size:16px;color:#fff;font-weight:700">До сплати</span>
+      <span class="cart-total-big">${subtotal.toLocaleString()} грн</span>
+    </div>`;
+}
+
+function changeQty(idx, delta) {
+  cart[idx].qty += delta;
+  if (cart[idx].qty <= 0) cart.splice(idx, 1);
+  updateCartUI();
+  renderCartPage();
+  renderProducts();
+}
+
+// ── Checkout ──
+tg.MainButton.onClick(checkout);
+
+function checkout() {
+  const note = document.getElementById('cartNote')?.value?.trim() || '';
+  const total = cart.reduce((s, e) => s + e.item.price * e.qty, 0);
+  const payload = {
+    items: cart.map(e => ({
+      id: e.item.id,
+      name: e.item.name,
+      price: e.item.price,
+      qty: e.qty,
+      size: e.size
+    })),
+    total,
+    note,
+    source: 'mini_app'
+  };
+  tg.sendData(JSON.stringify(payload));
+}
+
+// ── Init ──
+renderTabs();
+renderProducts();
+updateCartUI();
+</script>
+</body>
+</html>

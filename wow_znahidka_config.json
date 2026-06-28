@@ -5,6 +5,7 @@
   "greeting": "👟 Привіт, {name}!\n\nДобро запрошуємо у *WOW Znahidka* — кросівки від топових брендів з доставкою по Україні.\n\n✅ Накладений платіж\n✅ Обмін/повернення 14 днів\n✅ Консультація безкоштовно\n\nОберіть бренд:",
   "welcome_photo": null,
   "show_cart_btn": true,
+  "webapp_url": "https://wowznahidka.github.io/wow-bots/webapp.html",
 
   "payment": {
     "enabled": false,

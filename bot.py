@@ -7,7 +7,7 @@ Run: BOT_TOKEN=xxx python bot.py
 """
 import os, json, logging, asyncio
 from datetime import datetime
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler,
     MessageHandler, filters, ContextTypes
@@ -133,7 +133,11 @@ def save_order(user, cart, total, ld, pd_pct, pd_uah, note):
 
 # ── Keyboards ─────────────────────────────────────────────────────
 def kb_main():
-    rows = [[InlineKeyboardButton(f"{c.get('emoji','')} {c['name']}", callback_data=f"cat_{c['id']}")] for c in CFG.get('categories', [])]
+    rows = []
+    webapp_url = CFG.get('webapp_url', '')
+    if webapp_url:
+        rows.append([InlineKeyboardButton('🛍 Відкрити магазин', web_app=WebAppInfo(url=webapp_url))])
+    rows += [[InlineKeyboardButton(f"{c.get('emoji','')} {c['name']}", callback_data=f"cat_{c['id']}")] for c in CFG.get('categories', [])]
     r2 = []
     if CFG.get('show_cart_btn', True): r2.append(InlineKeyboardButton('🛒 Кошик', callback_data='cart'))
     if CFG.get('address'):             r2.append(InlineKeyboardButton('📍 Адреса', callback_data='address'))
@@ -585,6 +589,67 @@ async def on_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text('Скористайтесь кнопками меню 👇', reply_markup=kb_main())
 
+# ── Mini App order handler ────────────────────────────────────────
+async def on_webapp_order(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    raw  = update.message.web_app_data.data
+    user = update.effective_user
+    reg_user(user)
+    try:
+        data = json.loads(raw)
+    except Exception:
+        await update.message.reply_text('❌ Помилка даних із міні-апс.'); return
+
+    items = data.get('items', [])
+    note  = data.get('note', '')
+    total = data.get('total', 0)
+    if not items:
+        await update.message.reply_text('Кошик порожній.'); return
+
+    username  = f"@{user.username}" if user.username else f"ID:{user.id}"
+    items_txt = '\n'.join(
+        f"  • {it['name']} (EU {it.get('size','?')}) ×{it['qty']} — {it['price']*it['qty']} грн"
+        for it in items
+    )
+    order_msg = (
+        f"🛒 *Нове замовлення (Mini App) — {CFG.get('name','')}*\n\n"
+        f"👤 {user.full_name} ({username})\n\n"
+        f"{items_txt}\n\n"
+        f"✅ *До сплати: {total} грн*"
+    )
+    if note:
+        order_msg += f"\n\n📝 {note}"
+
+    for admin in ALL_ADMINS:
+        try: await ctx.bot.send_message(chat_id=admin, text=order_msg, parse_mode='Markdown')
+        except Exception as e: log.warning(f"Admin notify {admin}: {e}")
+
+    db = load_f('orders.json', {'orders': []})
+    db['orders'].append({
+        'time': datetime.now().strftime('%Y-%m-%d %H:%M'),
+        'source': 'mini_app',
+        'user': {'name': user.full_name, 'id': user.id, 'username': username},
+        'items': items, 'total': total, 'note': note
+    })
+    save_f('orders.json', db)
+
+    earned = 0
+    if LYL_ON:
+        pts_add(user.id, total)
+        earned = int(total / 100 * LYL_RATE)
+
+    pay_btn = []
+    if PAYMENT.get('enabled') and PAYMENT.get('monobank_jar'):
+        pay_btn = [[InlineKeyboardButton(f"💳 Оплатити {total} грн (Monobank)", url=PAYMENT['monobank_jar'])]]
+
+    await update.message.reply_text(
+        f"✅ *Замовлення прийнято!*\n\n"
+        f"До сплати: *{total} грн* (накладений платіж НП)\n"
+        + (f"\n🎁 Нараховано {earned} балів лояльності" if earned else "")
+        + "\n\nЗ вами зв'яжуться найближчим часом. Дякуємо! 🙏",
+        parse_mode='Markdown',
+        reply_markup=InlineKeyboardMarkup(pay_btn + [[InlineKeyboardButton('🏠 На головну', callback_data='back_main')]])
+    )
+
 # ── Run ───────────────────────────────────────────────────────────
 def main():
     if not BOT_TOKEN:
@@ -595,6 +660,7 @@ def main():
     app.add_handler(CommandHandler('points',    cmd_points))
     app.add_handler(CommandHandler('broadcast', cmd_broadcast))
     app.add_handler(CallbackQueryHandler(on_button))
+    app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, on_webapp_order))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))
     log.info(f"WOW Bots v4.0 MAX: {CFG.get('name','—')}")
     app.run_polling(drop_pending_updates=True)
