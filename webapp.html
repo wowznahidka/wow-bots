@@ -3,492 +3,417 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>WOW Znahidka 👟</title>
+<title>WOW Znahidka</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root {
-  --bg: #0a0a0a;
-  --card: #141414;
-  --card2: #1c1c1c;
-  --accent: #fff;
-  --sub: #666;
+  --bg:     #0a0a0a;
+  --card:   #141414;
+  --card2:  #1c1c1c;
   --border: #222;
-  --green: #34c759;
-  --red: #ff3b30;
-  --blue: #0a84ff;
-  --radius: 18px;
+  --sub:    #666;
+  --green:  #34c759;
+  --r:      18px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { min-height: 100%; background: var(--bg); color: var(--accent); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif; overflow-x: hidden; }
+html, body { min-height: 100%; background: var(--bg); color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', sans-serif; overflow-x: hidden; }
 
 /* ── HEADER ── */
-.header {
+.hdr {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(10,10,10,.92); backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(10,10,10,.94); backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
 }
-.header-top {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 16px 10px;
-}
-.logo { display: flex; align-items: center; gap: 8px; }
-.logo-icon { width: 32px; height: 32px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; }
-.logo-text { font-size: 17px; font-weight: 800; letter-spacing: -.4px; }
-.logo-sub { font-size: 11px; color: var(--sub); font-weight: 500; margin-top: 1px; }
+.hdr-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 10px; }
+.logo { display: flex; align-items: center; gap: 9px; }
+.logo-mark { width: 32px; height: 32px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.logo-name { font-size: 17px; font-weight: 800; letter-spacing: -.3px; }
+.logo-hint { font-size: 11px; color: var(--sub); }
 
-.cart-pill {
+.cart-btn {
   display: flex; align-items: center; gap: 7px;
   background: var(--card); border: 1.5px solid var(--border);
   border-radius: 100px; padding: 7px 14px;
-  font-size: 14px; font-weight: 600; cursor: pointer;
-  transition: all .15s;
+  font-size: 14px; font-weight: 600; cursor: pointer; transition: all .15s;
 }
-.cart-pill.active { background: #fff; color: #000; border-color: #fff; }
-.cart-pill .cart-cnt { font-size: 12px; font-weight: 700; background: var(--green); color: #000; border-radius: 100px; padding: 1px 7px; display: none; }
-.cart-pill.active .cart-cnt { display: block; }
+.cart-btn.on { background: #fff; color: #000; border-color: #fff; }
+.cart-btn .cnt { display: none; font-size: 11px; font-weight: 800; background: var(--green); color: #000; border-radius: 100px; padding: 1px 7px; }
+.cart-btn.on .cnt { display: block; }
 
-/* ── BRAND TABS ── */
-.brand-tabs { display: flex; gap: 8px; padding: 10px 16px 12px; overflow-x: auto; scrollbar-width: none; }
-.brand-tabs::-webkit-scrollbar { display: none; }
-.btab {
-  flex-shrink: 0; display: flex; align-items: center; gap: 6px;
-  padding: 8px 14px; border-radius: 100px; border: 1.5px solid var(--border);
-  font-size: 13px; font-weight: 600; color: var(--sub);
-  background: none; cursor: pointer; transition: all .15s;
-  white-space: nowrap;
+/* ── TABS ── */
+.tabs { display: flex; gap: 8px; padding: 8px 16px 12px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex-shrink: 0; padding: 7px 14px; border-radius: 100px;
+  border: 1.5px solid var(--border); font-size: 13px; font-weight: 600;
+  color: var(--sub); background: none; cursor: pointer; transition: all .15s; white-space: nowrap;
 }
-.btab.active { border-color: #fff; color: #fff; background: rgba(255,255,255,.08); }
+.tab.on { border-color: #fff; color: #fff; background: rgba(255,255,255,.08); }
 
-/* ── PRODUCT GRID ── */
+/* ── LOADING ── */
+.loading { text-align: center; padding: 60px 20px; color: var(--sub); font-size: 14px; }
+.spinner { width: 28px; height: 28px; border: 2.5px solid #222; border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── GRID ── */
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 4px 12px 140px; }
 
-.pcard {
-  background: var(--card); border-radius: var(--radius); overflow: hidden;
-  cursor: pointer; position: relative;
+.pc {
+  background: var(--card); border-radius: var(--r); overflow: hidden;
+  cursor: pointer; position: relative; border: 1px solid var(--border);
   transition: transform .12s;
-  border: 1px solid var(--border);
 }
-.pcard:active { transform: scale(.96); }
+.pc:active { transform: scale(.96); }
 
-.pcard-img {
-  width: 100%; aspect-ratio: 1;
-  background: var(--card2);
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden; position: relative;
+.pc-img {
+  width: 100%; aspect-ratio: 1; background: var(--card2);
+  display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
 }
-.pcard-img img {
-  width: 100%; height: 100%; object-fit: cover;
-  transition: transform .3s;
-}
-.pcard-img .emoji-fallback {
-  font-size: 56px; line-height: 1;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,.5));
-}
-.pcard-img-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,.6));
-}
+.pc-img img { width: 100%; height: 100%; object-fit: cover; }
+.pc-img .ph { font-size: 52px; }
+.pc-img-grad { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,.55)); }
+.pc-badge { position: absolute; top: 8px; left: 8px; background: var(--green); color: #000; font-size: 10px; font-weight: 800; border-radius: 100px; padding: 3px 8px; }
+.pc-new { position: absolute; top: 8px; right: 8px; background: #fff; color: #000; font-size: 9px; font-weight: 900; border-radius: 100px; padding: 3px 8px; letter-spacing: .3px; }
 
-.pcard-badge {
-  position: absolute; top: 8px; left: 8px;
-  background: var(--green); color: #000;
-  font-size: 10px; font-weight: 800;
-  border-radius: 100px; padding: 3px 8px;
-  letter-spacing: .2px;
-}
+.pc-body { padding: 10px 12px 12px; }
+.pc-brand { font-size: 10px; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 3px; }
+.pc-name { font-size: 13px; font-weight: 700; line-height: 1.3; margin-bottom: 6px; }
+.pc-prices { display: flex; align-items: baseline; gap: 6px; }
+.pc-price { font-size: 16px; font-weight: 900; }
+.pc-old { font-size: 12px; color: var(--sub); text-decoration: line-through; }
 
-.pcard-body { padding: 10px 12px 12px; }
-.pcard-brand { font-size: 10px; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 3px; }
-.pcard-name { font-size: 13px; font-weight: 700; line-height: 1.3; margin-bottom: 6px; }
-.pcard-price { font-size: 16px; font-weight: 800; }
+.pc-add { margin-top: 8px; width: 100%; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 8px; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
 
-.pcard-btn {
-  margin-top: 8px; width: 100%;
-  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
-  border-radius: 10px; padding: 8px;
-  color: #fff; font-size: 12px; font-weight: 700;
-  cursor: pointer; transition: background .15s;
-}
-.pcard:active .pcard-btn { background: rgba(255,255,255,.15); }
+/* ── SHEET ── */
+.ov { position: fixed; inset: 0; background: rgba(0,0,0,.72); z-index: 200; opacity: 0; pointer-events: none; transition: opacity .2s; backdrop-filter: blur(4px); }
+.ov.on { opacity: 1; pointer-events: all; }
 
-/* ── BOTTOM SHEET ── */
-.overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,.7);
-  z-index: 200; opacity: 0; pointer-events: none;
-  transition: opacity .2s; backdrop-filter: blur(4px);
-}
-.overlay.show { opacity: 1; pointer-events: all; }
-
-.sheet {
+.sh {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 201;
-  background: #1a1a1a; border-radius: 24px 24px 0 0;
-  padding: 0 0 env(safe-area-inset-bottom, 20px);
+  background: #1a1a1a; border-radius: 22px 22px 0 0;
   transform: translateY(100%);
   transition: transform .3s cubic-bezier(.32,1,.28,1);
-  max-height: 90vh; overflow-y: auto;
+  max-height: 92vh; overflow-y: auto;
+  padding-bottom: env(safe-area-inset-bottom, 20px);
 }
-.sheet.show { transform: translateY(0); }
+.sh.on { transform: translateY(0); }
+.sh-handle { width: 36px; height: 4px; background: #333; border-radius: 2px; margin: 14px auto 0; }
 
-.sheet-handle { width: 36px; height: 4px; background: #333; border-radius: 2px; margin: 14px auto 0; }
-
-.sheet-product-img {
+.sh-img {
   width: 100%; aspect-ratio: 16/9;
-  background: var(--card2);
-  display: flex; align-items: center; justify-content: center;
+  background: #111; display: flex; align-items: center; justify-content: center;
   margin-top: 12px; overflow: hidden;
 }
-.sheet-product-img img { width: 100%; height: 100%; object-fit: cover; }
-.sheet-product-img .emoji-big { font-size: 80px; filter: drop-shadow(0 6px 20px rgba(0,0,0,.5)); }
+.sh-img img { width: 100%; height: 100%; object-fit: cover; }
+.sh-img .ph { font-size: 80px; }
 
-.sheet-body { padding: 16px 20px 20px; }
-.sheet-brand { font-size: 11px; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-.sheet-name { font-size: 22px; font-weight: 800; letter-spacing: -.3px; margin-bottom: 4px; }
-.sheet-price { font-size: 28px; font-weight: 900; margin-bottom: 20px; }
+.sh-body { padding: 16px 20px 24px; }
+.sh-brand { font-size: 11px; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.sh-name { font-size: 22px; font-weight: 900; letter-spacing: -.3px; margin-bottom: 6px; }
+.sh-prices { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; }
+.sh-price { font-size: 28px; font-weight: 900; }
+.sh-old { font-size: 16px; color: var(--sub); text-decoration: line-through; }
 
-.sheet-section-label { font-size: 12px; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px; }
-
+.sh-sect { font-size: 11px; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px; }
 .sizes { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
 .sz {
   min-width: 50px; height: 46px; border-radius: 12px;
   border: 1.5px solid var(--border); background: var(--card);
-  color: var(--accent); font-size: 14px; font-weight: 700;
-  cursor: pointer; transition: all .1s;
-  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all .1s;
 }
 .sz.sel { background: #fff; color: #000; border-color: #fff; }
-.sz:active { transform: scale(.92); }
+.sz:active { transform: scale(.9); }
 
-.sheet-add {
-  width: 100%; background: #fff; color: #000;
-  border: none; border-radius: 14px;
-  padding: 16px; font-size: 16px; font-weight: 800;
-  cursor: pointer; transition: opacity .15s;
-}
-.sheet-add:disabled { background: #2a2a2a; color: #555; cursor: default; }
+.sh-add-btn { width: 100%; background: #fff; color: #000; border: none; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 900; cursor: pointer; }
+.sh-add-btn:disabled { background: #2a2a2a; color: #555; cursor: default; }
 
 /* ── CART PAGE ── */
-.cart-page {
-  display: none; position: fixed; inset: 0;
-  background: var(--bg); z-index: 300; overflow-y: auto;
+.cart-pg { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 300; overflow-y: auto; }
+.cart-pg.on { display: block; }
+.cart-pg-hdr {
+  position: sticky; top: 0; background: rgba(10,10,10,.94); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; padding: 14px 16px;
 }
-.cart-page.open { display: block; }
+.back { width: 32px; height: 32px; background: var(--card); border: 1px solid var(--border); border-radius: 50%; color: #fff; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.cart-pg-title { font-size: 17px; font-weight: 800; }
 
-.cart-header {
-  position: sticky; top: 0; z-index: 10;
-  background: rgba(10,10,10,.92); backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px;
-}
-.back-btn {
-  width: 32px; height: 32px; background: var(--card);
-  border: 1px solid var(--border); border-radius: 50%;
-  color: #fff; font-size: 20px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  line-height: 1;
-}
-.cart-h-title { font-size: 17px; font-weight: 800; }
-
-.cart-body { padding: 12px 16px 160px; }
-
-.cart-item {
-  display: flex; gap: 12px; align-items: center;
-  padding: 14px 0; border-bottom: 1px solid var(--border);
-}
-.ci-emoji { font-size: 36px; width: 52px; height: 52px; background: var(--card); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cart-items-wrap { padding: 0 16px 8px; }
+.ci { display: flex; gap: 12px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.ci-img { width: 52px; height: 52px; background: var(--card); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; overflow: hidden; }
+.ci-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
 .ci-info { flex: 1; min-width: 0; }
 .ci-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-.ci-var { font-size: 12px; color: var(--sub); }
-.ci-price { font-size: 15px; font-weight: 800; margin-top: 4px; }
+.ci-var { font-size: 12px; color: var(--sub); margin-bottom: 4px; }
+.ci-price { font-size: 15px; font-weight: 900; }
+.qty { display: flex; align-items: center; gap: 10px; }
+.qb { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--card); color: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.qn { font-size: 16px; font-weight: 800; min-width: 18px; text-align: center; }
 
-.qty-ctrl { display: flex; align-items: center; gap: 10px; }
-.qbtn {
-  width: 32px; height: 32px; border-radius: 50%;
-  border: 1.5px solid var(--border); background: var(--card);
-  color: #fff; font-size: 18px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
-.qnum { font-size: 16px; font-weight: 800; min-width: 18px; text-align: center; }
+.note-wrap { padding: 16px 16px 8px; }
+.note-label { font-size: 11px; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
+.note { width: 100%; background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; color: #fff; font-size: 14px; padding: 12px 14px; resize: none; height: 70px; font-family: inherit; }
+.note:focus { outline: none; border-color: #444; }
 
-.note-block { margin-top: 20px; }
-.note-label { font-size: 12px; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
-.note-input {
-  width: 100%; background: var(--card); border: 1.5px solid var(--border);
-  border-radius: 14px; color: #fff; font-size: 14px; padding: 12px 14px;
-  resize: none; height: 72px; font-family: inherit;
-}
-.note-input:focus { outline: none; border-color: #444; }
+.total-box { margin: 16px 16px 120px; background: var(--card); border-radius: var(--r); padding: 16px; border: 1px solid var(--border); }
+.tr { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.tr:last-child { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 4px; margin-bottom: 0; }
+.tl { font-size: 14px; color: var(--sub); }
+.tv { font-size: 14px; font-weight: 700; }
+.tv.big { font-size: 22px; font-weight: 900; }
 
-.totals-block {
-  margin-top: 20px; background: var(--card);
-  border-radius: var(--radius); padding: 16px;
-  border: 1px solid var(--border);
-}
-.total-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
-.total-row:last-child { margin-bottom: 0; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 4px; }
-.tr-label { font-size: 14px; color: var(--sub); }
-.tr-val { font-size: 14px; font-weight: 700; }
-.tr-big { font-size: 22px; font-weight: 900; }
+.cart-empty { text-align: center; padding: 80px 20px; color: var(--sub); }
 
-.cart-empty { text-align: center; padding: 80px 20px; }
-.empty-icon { font-size: 64px; margin-bottom: 16px; }
-.empty-text { font-size: 16px; color: var(--sub); font-weight: 500; }
-
-/* ── FLOATING ORDER BTN (for cart page fallback) ── */
-.order-bar {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
-  padding: 16px 16px env(safe-area-inset-bottom, 16px);
-  background: linear-gradient(to top, #0a0a0a 80%, transparent);
-  display: none;
-}
-.order-bar.show { display: block; }
-.order-btn {
-  width: 100%; background: #fff; color: #000;
-  border: none; border-radius: 16px;
-  padding: 18px; font-size: 17px; font-weight: 800;
-  cursor: pointer; letter-spacing: -.2px;
-}
+/* ── ORDER BAR (cart fallback) ── */
+.order-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 400; padding: 14px 16px env(safe-area-inset-bottom, 14px); background: linear-gradient(to top, #0a0a0a 80%, transparent); display: none; }
+.order-bar.on { display: block; }
+.order-bar-btn { width: 100%; background: #fff; color: #000; border: none; border-radius: 16px; padding: 17px; font-size: 17px; font-weight: 900; cursor: pointer; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-top">
+<div class="hdr">
+  <div class="hdr-top">
     <div class="logo">
-      <div class="logo-icon">👟</div>
+      <div class="logo-mark">👟</div>
       <div>
-        <div class="logo-text">WOW Znahidka</div>
-        <div class="logo-sub">Оригінальні кросівки</div>
+        <div class="logo-name">WOW Znahidka</div>
+        <div class="logo-hint">Кросівки з доставкою по Україні</div>
       </div>
     </div>
-    <div class="cart-pill" id="cartPill" onclick="openCart()">
-      🛒 Кошик <span class="cart-cnt" id="cartCnt">0</span>
+    <div class="cart-btn" id="cartBtn" onclick="openCart()">
+      🛒 Кошик <span class="cnt" id="cartCnt">0</span>
     </div>
   </div>
-  <div class="brand-tabs" id="brandTabs"></div>
+  <div class="tabs" id="tabs"></div>
 </div>
 
-<div class="grid" id="grid"></div>
+<div id="main"></div>
 
 <!-- SIZE SHEET -->
-<div class="overlay" id="overlay" onclick="closeSheet()"></div>
-<div class="sheet" id="sheet">
-  <div class="sheet-handle"></div>
-  <div class="sheet-product-img" id="sheetImg">
-    <div class="emoji-big" id="sheetEmoji"></div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-brand" id="sheetBrand"></div>
-    <div class="sheet-name" id="sheetName"></div>
-    <div class="sheet-price" id="sheetPrice"></div>
-    <div class="sheet-section-label">Розмір (EU)</div>
-    <div class="sizes" id="sizes"></div>
-    <button class="sheet-add" id="sheetAdd" disabled onclick="addToCart()">Оберіть розмір</button>
+<div class="ov" id="ov" onclick="closeSheet()"></div>
+<div class="sh" id="sh">
+  <div class="sh-handle"></div>
+  <div class="sh-img" id="shImg"></div>
+  <div class="sh-body">
+    <div class="sh-brand" id="shBrand"></div>
+    <div class="sh-name" id="shName"></div>
+    <div class="sh-prices" id="shPrices"></div>
+    <div class="sh-sect">Розмір (EU)</div>
+    <div class="sizes" id="shSizes"></div>
+    <button class="sh-add-btn" id="shBtn" disabled onclick="addToCart()">Оберіть розмір</button>
   </div>
 </div>
 
 <!-- CART PAGE -->
-<div class="cart-page" id="cartPage">
-  <div class="cart-header">
-    <button class="back-btn" onclick="closeCart()">‹</button>
-    <div class="cart-h-title">Кошик</div>
+<div class="cart-pg" id="cartPg">
+  <div class="cart-pg-hdr">
+    <button class="back" onclick="closeCart()">‹</button>
+    <div class="cart-pg-title">Кошик</div>
   </div>
-  <div class="cart-body">
-    <div id="cartItems"></div>
-    <div class="note-block">
-      <div class="note-label">Коментар до замовлення</div>
-      <textarea class="note-input" id="cartNote" placeholder="Відділення НП, адреса, побажання..."></textarea>
-    </div>
-    <div class="totals-block" id="totalsBlock" style="display:none"></div>
+  <div class="cart-items-wrap" id="cartItems"></div>
+  <div class="note-wrap">
+    <div class="note-label">Коментар до замовлення</div>
+    <textarea class="note" id="note" placeholder="Відділення НП, адреса, побажання..."></textarea>
   </div>
+  <div class="total-box" id="totalBox" style="display:none"></div>
 </div>
 
 <div class="order-bar" id="orderBar">
-  <button class="order-btn" id="orderBtn" onclick="checkout()">Оформити замовлення</button>
+  <button class="order-bar-btn" id="orderBarBtn" onclick="checkout()">Оформити замовлення</button>
 </div>
 
 <script>
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
-const CATALOG = [
-  {
-    id: 'new_balance', name: 'New Balance', emoji: '🔵',
-    items: [
-      { id: 'nb530_white', name: 'NB 530 White', brand: 'New Balance', price: 2200, emoji: '👟',
-        photo: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80',
-        sizes: ['36','37','38','39','40','41','42','43','44','45'] },
-      { id: 'nb530_grey', name: 'NB 530 Grey', brand: 'New Balance', price: 2200, emoji: '👟',
-        photo: 'https://images.unsplash.com/photo-1607522370275-f14206abe5d3?w=400&q=80',
-        sizes: ['36','37','38','39','40','41','42','43','44','45'] },
-      { id: 'nb2000_black', name: 'NB 2000 Black', brand: 'New Balance', price: 2800, emoji: '⚡',
-        photo: 'https://images.unsplash.com/photo-1584735175315-9d5df23be1f9?w=400&q=80',
-        sizes: ['36','37','38','39','40','41','42','43','44','45'] },
-      { id: 'nb2000_white', name: 'NB 2000 White', brand: 'New Balance', price: 2800, emoji: '⚡',
-        photo: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&q=80',
-        sizes: ['36','37','38','39','40','41','42','43','44','45'] },
-      { id: 'nb574', name: 'NB 574', brand: 'New Balance', price: 1900, emoji: '👟',
-        photo: 'https://images.unsplash.com/photo-1562183241-b937e95585b6?w=400&q=80',
-        sizes: ['36','37','38','39','40','41','42','43','44','45'] },
-      { id: 'nb1906r', name: 'NB 1906R', brand: 'New Balance', price: 3200, emoji: '👟',
-        photo: 'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=400&q=80',
-        sizes: ['36','37','38','39','40','41','42','43','44','45'] },
-    ]
-  },
-  {
-    id: 'balenciaga', name: 'Balenciaga', emoji: '🖤',
-    items: [
-      { id: 'balenciaga_runner', name: 'Balenciaga Runner', brand: 'Balenciaga', price: 3800, emoji: '🖤',
-        photo: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&q=80',
-        sizes: ['36','37','38','39','40','41','42','43','44','45'] },
-      { id: 'balenciaga_track', name: 'Balenciaga Track', brand: 'Balenciaga', price: 4200, emoji: '🖤',
-        photo: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80',
-        sizes: ['36','37','38','39','40','41','42','43','44','45'] },
-    ]
-  },
-  {
-    id: 'nike', name: 'Nike', emoji: '✔️',
-    items: [
-      { id: 'nike_dunk_low', name: 'Nike Dunk Low', brand: 'Nike', price: 2600, emoji: '✔️',
-        photo: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80',
-        sizes: ['36','37','38','39','40','41','42','43','44','45'] },
-      { id: 'nike_airmax_270', name: 'Air Max 270', brand: 'Nike', price: 2900, emoji: '✔️',
-        photo: 'https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=400&q=80',
-        sizes: ['36','37','38','39','40','41','42','43','44','45'] },
-      { id: 'jordan1_low', name: 'Jordan 1 Low', brand: 'Nike', price: 3100, emoji: '✔️',
-        photo: 'https://images.unsplash.com/photo-1556906781-9a412961d28f?w=400&q=80',
-        sizes: ['36','37','38','39','40','41','42','43','44','45'] },
-    ]
-  },
-  {
-    id: 'adidas', name: 'Adidas', emoji: '⚫',
-    items: [
-      { id: 'yeezy_350', name: 'Yeezy 350 V2', brand: 'Adidas', price: 3500, emoji: '⚫',
-        photo: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&q=80',
-        sizes: ['36','37','38','39','40','41','42','43','44','45'] },
-      { id: 'adidas_samba', name: 'Adidas Samba OG', brand: 'Adidas', price: 2100, emoji: '⚫',
-        photo: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&q=80',
-        sizes: ['36','37','38','39','40','41','42','43','44','45'] },
-    ]
+const GAS = 'https://script.google.com/macros/s/AKfycbxnbKNfrT38T4c7drhOI5IomuFzLNCeXZPykGwBSQpgtZUkme6Ip91Zio9weRgQYs-mCw/exec';
+
+let products = [];   // normalized
+let brands   = [];   // unique brand list
+let activeB  = '';
+let cart     = [];
+let shItem   = null;
+let shSize   = null;
+
+// ── Normalize (mirrors website logic) ──
+function norm(p) {
+  const sizesRaw = p['Розміри'] || p.sizes || p.Sizes || '';
+  let sizes = [];
+  if (Array.isArray(sizesRaw)) {
+    const hasOne = sizesRaw.some(s => String(s).trim().toUpperCase() === 'ONE SIZE');
+    if (hasOne) {
+      sizes = ['ONE SIZE'];
+    } else {
+      sizesRaw.forEach(s => { const n = Number(s); if (n >= 30 && n <= 55) sizes.push(n); });
+      sizes = [...new Set(sizes)].sort((a, b) => a - b);
+    }
+  } else {
+    const str = String(sizesRaw).trim();
+    if (!str || str.toUpperCase() === 'ONE SIZE') {
+      sizes = str ? ['ONE SIZE'] : [];
+    } else {
+      const pairs = [...str.matchAll(/\b(\d{2})\b\s*[\s\-:(]\s*([єЄeE]|\d+)\s*\)?/g)];
+      if (pairs.length) {
+        pairs.forEach(m => {
+          const sz = Number(m[1]); const raw = m[2].toLowerCase();
+          if (sz >= 30 && sz <= 55) {
+            const qty = (raw === 'є' || raw === 'e') ? 1 : Number(raw);
+            if (qty > 0) sizes.push(sz);
+          }
+        });
+        sizes = [...new Set(sizes)].sort((a, b) => a - b);
+      }
+      if (!sizes.length) {
+        sizes = [...new Set([...str.matchAll(/\b(\d{2})\b/g)].map(m => Number(m[1])).filter(n => n >= 30 && n <= 55))].sort((a, b) => a - b);
+      }
+    }
   }
-];
+  const price = Number(p['Ціна'] || p.price || 0);
+  let oldPrice = Number(p['Стара ціна'] || p.oldPrice || 0);
+  if (oldPrice <= price) oldPrice = 0;
+  return {
+    id:       String(p.id || p['ID'] || p['Артикул'] || Math.random().toString(36).slice(2)),
+    brand:    String(p['Бренд'] || p.brand || ''),
+    name:     String(p['Назва'] || p['Модель'] || p.name || ''),
+    price, oldPrice,
+    image:    String(p['Фото'] || p.image || p.photo || ''),
+    sizes,
+    isNew:    Boolean(p['Нове'] || p.isNew),
+  };
+}
 
-let activeTab = 'new_balance';
-let cart = [];
-let sheetItem = null;
-let sheetSize = null;
+// ── Load products ──
+async function load() {
+  document.getElementById('main').innerHTML = '<div class="loading"><div class="spinner"></div>Завантажуємо каталог…</div>';
+  try {
+    const r = await fetch(GAS, { signal: AbortSignal.timeout(10000) });
+    const j = await r.json();
+    const raw = j.products || j.data || (Array.isArray(j) ? j : []);
+    products = raw.map(norm).filter(p => p.brand && p.name && p.price && p.sizes.length);
+  } catch(e) {
+    products = [];
+  }
 
-function allItems() { return CATALOG.flatMap(c => c.items); }
-function cartTotal() { return cart.reduce((s, e) => s + e.item.price * e.qty, 0); }
-function cartCount() { return cart.reduce((s, e) => s + e.qty, 0); }
+  brands = [...new Set(products.map(p => p.brand))].filter(Boolean).sort();
+  if (!brands.length) {
+    document.getElementById('main').innerHTML = '<div class="loading">Каталог тимчасово недоступний.<br>Спробуй пізніше.</div>';
+    return;
+  }
+
+  activeB = brands[0];
+  renderTabs();
+  renderGrid();
+}
 
 // ── Tabs ──
 function renderTabs() {
-  document.getElementById('brandTabs').innerHTML = CATALOG.map(c =>
-    `<button class="btab${c.id === activeTab ? ' active' : ''}" onclick="switchTab('${c.id}')">${c.emoji} ${c.name}</button>`
+  document.getElementById('tabs').innerHTML = brands.map(b =>
+    `<button class="tab${b === activeB ? ' on' : ''}" onclick="switchBrand('${b.replace(/'/g,"\\'")}')"> ${b}</button>`
   ).join('');
 }
 
-function switchTab(id) {
-  activeTab = id;
+function switchBrand(b) {
+  activeB = b;
   renderTabs();
   renderGrid();
 }
 
 // ── Grid ──
 function renderGrid() {
-  const cat = CATALOG.find(c => c.id === activeTab);
-  if (!cat) return;
-  document.getElementById('grid').innerHTML = cat.items.map(item => {
-    const inCart = cart.reduce((s, e) => s + (e.item.id === item.id ? e.qty : 0), 0);
-    const img = item.photo
-      ? `<img src="${item.photo}" alt="${item.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-        + `<div class="emoji-fallback" style="display:none">${item.emoji}</div>`
-      : `<div class="emoji-fallback">${item.emoji}</div>`;
-    return `<div class="pcard" onclick="openSheet('${item.id}')">
-      ${inCart ? `<div class="pcard-badge">${inCart} в кошику</div>` : ''}
-      <div class="pcard-img">
-        ${img}
-        <div class="pcard-img-overlay"></div>
-      </div>
-      <div class="pcard-body">
-        <div class="pcard-brand">${item.brand}</div>
-        <div class="pcard-name">${item.name}</div>
-        <div class="pcard-price">${item.price.toLocaleString()} грн</div>
-        <button class="pcard-btn" onclick="event.stopPropagation();openSheet('${item.id}')">Вибрати розмір →</button>
+  const items = products.filter(p => p.brand === activeB);
+  if (!items.length) {
+    document.getElementById('main').innerHTML = '<div class="loading">Немає товарів у цій категорії</div>';
+    return;
+  }
+  const html = `<div class="grid">${items.map(p => {
+    const inC = cart.reduce((s, e) => s + (e.p.id === p.id ? e.qty : 0), 0);
+    const imgH = p.image
+      ? `<img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'">`
+      : `<div class="ph">👟</div>`;
+    const oldH = p.oldPrice ? `<span class="pc-old">${p.oldPrice.toLocaleString()}₴</span>` : '';
+    return `<div class="pc" onclick="openSheet('${p.id}')">
+      ${inC ? `<div class="pc-badge">${inC} в кошику</div>` : ''}
+      ${p.isNew ? '<div class="pc-new">NEW</div>' : ''}
+      <div class="pc-img">${imgH}<div class="pc-img-grad"></div></div>
+      <div class="pc-body">
+        <div class="pc-brand">${p.brand}</div>
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-prices">
+          <div class="pc-price">${p.price.toLocaleString()}₴</div>
+          ${oldH}
+        </div>
+        <button class="pc-add" onclick="event.stopPropagation();openSheet('${p.id}')">Вибрати розмір →</button>
       </div>
     </div>`;
-  }).join('');
+  }).join('')}</div>`;
+  document.getElementById('main').innerHTML = html;
 }
 
 // ── Sheet ──
-function openSheet(itemId) {
-  sheetItem = allItems().find(i => i.id === itemId);
-  sheetSize = null;
-  document.getElementById('sheetBrand').textContent = sheetItem.brand;
-  document.getElementById('sheetName').textContent = sheetItem.name;
-  document.getElementById('sheetPrice').textContent = sheetItem.price.toLocaleString() + ' грн';
-  document.getElementById('sheetEmoji').textContent = sheetItem.emoji;
-  const imgEl = document.getElementById('sheetImg');
-  if (sheetItem.photo) {
-    imgEl.innerHTML = `<img src="${sheetItem.photo}" alt="${sheetItem.name}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.innerHTML='<div class=emoji-big>${sheetItem.emoji}</div>'">`;
-  } else {
-    imgEl.innerHTML = `<div class="emoji-big">${sheetItem.emoji}</div>`;
-  }
+function openSheet(id) {
+  shItem = products.find(p => p.id === id);
+  if (!shItem) return;
+  shSize = null;
+  document.getElementById('shBrand').textContent = shItem.brand;
+  document.getElementById('shName').textContent = shItem.name;
+  const oldH = shItem.oldPrice ? `<span class="sh-old">${shItem.oldPrice.toLocaleString()}₴</span>` : '';
+  document.getElementById('shPrices').innerHTML = `<span class="sh-price">${shItem.price.toLocaleString()}₴</span>${oldH}`;
+  document.getElementById('shImg').innerHTML = shItem.image
+    ? `<img src="${shItem.image}" alt="${shItem.name}" onerror="this.parentNode.innerHTML='<div class=ph>👟</div>'">`
+    : `<div class="ph">👟</div>`;
   renderSizes();
-  document.getElementById('overlay').classList.add('show');
-  document.getElementById('sheet').classList.add('show');
-  if (tg) tg.HapticFeedback.selectionChanged();
+  document.getElementById('ov').classList.add('on');
+  document.getElementById('sh').classList.add('on');
+  if (tg) tg.HapticFeedback?.selectionChanged();
 }
 
 function closeSheet() {
-  document.getElementById('overlay').classList.remove('show');
-  document.getElementById('sheet').classList.remove('show');
+  document.getElementById('ov').classList.remove('on');
+  document.getElementById('sh').classList.remove('on');
 }
 
 function renderSizes() {
-  document.getElementById('sizes').innerHTML = sheetItem.sizes.map(s =>
-    `<button class="sz${sheetSize === s ? ' sel' : ''}" onclick="pickSize('${s}')">${s}</button>`
+  document.getElementById('shSizes').innerHTML = shItem.sizes.map(s =>
+    `<button class="sz${shSize == s ? ' sel' : ''}" onclick="pickSz(${JSON.stringify(s)})">${s}</button>`
   ).join('');
-  syncSheetBtn();
+  syncShBtn();
 }
 
-function pickSize(s) {
-  sheetSize = s;
+function pickSz(s) {
+  shSize = s;
   renderSizes();
-  if (tg) tg.HapticFeedback.selectionChanged();
+  if (tg) tg.HapticFeedback?.selectionChanged();
 }
 
-function syncSheetBtn() {
-  const btn = document.getElementById('sheetAdd');
-  btn.disabled = !sheetSize;
-  btn.textContent = sheetSize ? `Додати ${sheetSize} розмір в кошик` : 'Оберіть розмір';
+function syncShBtn() {
+  const btn = document.getElementById('shBtn');
+  btn.disabled = shSize == null;
+  btn.textContent = shSize != null ? `Додати EU ${shSize} в кошик` : 'Оберіть розмір';
 }
 
 function addToCart() {
-  if (!sheetItem || !sheetSize) return;
-  const ex = cart.find(e => e.item.id === sheetItem.id && e.size === sheetSize);
+  if (!shItem || shSize == null) return;
+  const ex = cart.find(e => e.p.id === shItem.id && e.size == shSize);
   if (ex) ex.qty++;
-  else cart.push({ item: sheetItem, size: sheetSize, qty: 1 });
+  else cart.push({ p: shItem, size: shSize, qty: 1 });
   closeSheet();
-  syncCartUI();
+  syncCartBtn();
   renderGrid();
-  if (tg) tg.HapticFeedback.notificationOccurred('success');
+  if (tg) tg.HapticFeedback?.notificationOccurred('success');
 }
 
-// ── Cart UI sync ──
-function syncCartUI() {
-  const cnt = cartCount();
-  const sum = cartTotal();
-  const pill = document.getElementById('cartPill');
+// ── Cart button sync ──
+function syncCartBtn() {
+  const cnt = cart.reduce((s, e) => s + e.qty, 0);
+  const sum = cart.reduce((s, e) => s + e.p.price * e.qty, 0);
+  const btn = document.getElementById('cartBtn');
   const cntEl = document.getElementById('cartCnt');
-  pill.classList.toggle('active', cnt > 0);
+  btn.classList.toggle('on', cnt > 0);
   cntEl.textContent = cnt;
-
   if (tg?.MainButton) {
     if (cnt > 0) {
-      tg.MainButton.setText(`Замовити — ${sum.toLocaleString()} грн`);
+      tg.MainButton.setText(`Замовити — ${sum.toLocaleString()}₴`);
       tg.MainButton.show();
       tg.MainButton.color = '#ffffff';
       tg.MainButton.textColor = '#000000';
@@ -501,85 +426,85 @@ function syncCartUI() {
 // ── Cart page ──
 function openCart() {
   renderCartPage();
-  document.getElementById('cartPage').classList.add('open');
-  const bar = document.getElementById('orderBar');
-  bar.classList.toggle('show', cartCount() > 0);
-  const btn = document.getElementById('orderBtn');
-  btn.textContent = `Замовити — ${cartTotal().toLocaleString()} грн`;
+  document.getElementById('cartPg').classList.add('on');
+  syncOrderBar();
 }
 
 function closeCart() {
-  document.getElementById('cartPage').classList.remove('open');
-  document.getElementById('orderBar').classList.remove('show');
+  document.getElementById('cartPg').classList.remove('on');
+  document.getElementById('orderBar').classList.remove('on');
 }
 
 function renderCartPage() {
   const el = document.getElementById('cartItems');
   if (!cart.length) {
-    el.innerHTML = `<div class="cart-empty"><div class="empty-icon">🛒</div><div class="empty-text">Кошик порожній</div></div>`;
-    document.getElementById('totalsBlock').style.display = 'none';
+    el.innerHTML = '<div class="cart-empty">Кошик порожній 🛒</div>';
+    document.getElementById('totalBox').style.display = 'none';
     return;
   }
-  el.innerHTML = cart.map((e, i) => `
-    <div class="cart-item">
-      <div class="ci-emoji">${e.item.emoji}</div>
+  el.innerHTML = cart.map((e, i) => {
+    const imgH = e.p.image
+      ? `<img src="${e.p.image}" onerror="this.style.display='none'">`
+      : '👟';
+    return `<div class="ci">
+      <div class="ci-img">${imgH}</div>
       <div class="ci-info">
-        <div class="ci-name">${e.item.name}</div>
-        <div class="ci-var">Розмір EU ${e.size}</div>
-        <div class="ci-price">${(e.item.price * e.qty).toLocaleString()} грн</div>
+        <div class="ci-name">${e.p.name}</div>
+        <div class="ci-var">${e.p.brand} · EU ${e.size}</div>
+        <div class="ci-price">${(e.p.price * e.qty).toLocaleString()}₴</div>
       </div>
-      <div class="qty-ctrl">
-        <button class="qbtn" onclick="chQty(${i},-1)">−</button>
-        <div class="qnum">${e.qty}</div>
-        <button class="qbtn" onclick="chQty(${i},+1)">+</button>
+      <div class="qty">
+        <button class="qb" onclick="chQty(${i},-1)">−</button>
+        <div class="qn">${e.qty}</div>
+        <button class="qb" onclick="chQty(${i},+1)">+</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
-  const sub = cartTotal();
-  const cnt = cartCount();
-  const totals = document.getElementById('totalsBlock');
-  totals.style.display = '';
-  totals.innerHTML = `
-    <div class="total-row"><span class="tr-label">Товарів</span><span class="tr-val">${cnt} шт</span></div>
-    <div class="total-row"><span class="tr-label">Доставка</span><span class="tr-val">Накладений платіж</span></div>
-    <div class="total-row"><span class="tr-label" style="color:#fff;font-weight:700;font-size:16px">До сплати</span><span class="tr-big">${sub.toLocaleString()} грн</span></div>`;
+  const sum = cart.reduce((s, e) => s + e.p.price * e.qty, 0);
+  const cnt = cart.reduce((s, e) => s + e.qty, 0);
+  const tb = document.getElementById('totalBox');
+  tb.style.display = '';
+  tb.innerHTML = `
+    <div class="tr"><span class="tl">Товарів</span><span class="tv">${cnt} шт</span></div>
+    <div class="tr"><span class="tl">Доставка</span><span class="tv">Накладений платіж</span></div>
+    <div class="tr"><span class="tl" style="color:#fff;font-weight:800;font-size:15px">До сплати</span><span class="tv big">${sum.toLocaleString()}₴</span></div>`;
 }
 
 function chQty(i, d) {
   cart[i].qty += d;
   if (cart[i].qty <= 0) cart.splice(i, 1);
-  syncCartUI();
+  syncCartBtn();
   renderCartPage();
   renderGrid();
+  syncOrderBar();
+}
+
+function syncOrderBar() {
+  const sum = cart.reduce((s, e) => s + e.p.price * e.qty, 0);
+  const cnt = cart.reduce((s, e) => s + e.qty, 0);
   const bar = document.getElementById('orderBar');
-  bar.classList.toggle('show', cartCount() > 0);
-  if (cartCount() > 0) {
-    document.getElementById('orderBtn').textContent = `Замовити — ${cartTotal().toLocaleString()} грн`;
-  }
+  bar.classList.toggle('on', cnt > 0);
+  document.getElementById('orderBarBtn').textContent = `Замовити — ${sum.toLocaleString()}₴`;
 }
 
 // ── Checkout ──
 function checkout() {
   if (!cart.length) return;
-  const note = document.getElementById('cartNote')?.value?.trim() || '';
+  const note = document.getElementById('note')?.value?.trim() || '';
   const payload = {
-    items: cart.map(e => ({ id: e.item.id, name: e.item.name, price: e.item.price, qty: e.qty, size: e.size })),
-    total: cartTotal(),
+    items: cart.map(e => ({ id: e.p.id, brand: e.p.brand, name: e.p.name, price: e.p.price, qty: e.qty, size: e.size })),
+    total: cart.reduce((s, e) => s + e.p.price * e.qty, 0),
     note,
     source: 'mini_app'
   };
-  if (tg?.sendData) {
-    tg.sendData(JSON.stringify(payload));
-  } else {
-    alert('Замовлення: ' + JSON.stringify(payload, null, 2));
-  }
+  if (tg?.sendData) tg.sendData(JSON.stringify(payload));
+  else alert('Замовлення прийнято!');
 }
 
 if (tg?.MainButton) tg.MainButton.onClick(checkout);
 
-renderTabs();
-renderGrid();
-syncCartUI();
+load();
 </script>
 </body>
 </html>
