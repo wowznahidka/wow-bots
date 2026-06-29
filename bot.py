@@ -650,6 +650,26 @@ async def on_webapp_order(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         reply_markup=InlineKeyboardMarkup(pay_btn + [[InlineKeyboardButton('🏠 На головну', callback_data='back_main')]])
     )
 
+# ── Channel post handler — auto-add "Замовити" button ────────────
+CHANNEL_IDS = [int(x) for x in str(CFG.get('channel_id', '')).split(',') if x.strip()]
+
+async def on_channel_post(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    msg = update.channel_post
+    if not msg:
+        return
+    if msg.chat.id not in CHANNEL_IDS:
+        return
+    webapp_url = CFG.get('webapp_url', '')
+    if not webapp_url:
+        return
+    try:
+        kb = InlineKeyboardMarkup([[
+            InlineKeyboardButton('🛍 Відкрити магазин', web_app=WebAppInfo(url=webapp_url))
+        ]])
+        await msg.edit_reply_markup(reply_markup=kb)
+    except Exception as e:
+        log.warning(f'Channel post edit failed: {e}')
+
 # ── Run ───────────────────────────────────────────────────────────
 def main():
     if not BOT_TOKEN:
@@ -661,6 +681,7 @@ def main():
     app.add_handler(CommandHandler('broadcast', cmd_broadcast))
     app.add_handler(CallbackQueryHandler(on_button))
     app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, on_webapp_order))
+    app.add_handler(MessageHandler(filters.ChatType.CHANNEL, on_channel_post))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))
     log.info(f"WOW Bots v4.0 MAX: {CFG.get('name','—')}")
     app.run_polling(drop_pending_updates=True)

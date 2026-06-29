@@ -6,6 +6,7 @@
   "welcome_photo": null,
   "show_cart_btn": true,
   "webapp_url": "https://wowznahidka.github.io/wow-znahidka/",
+  "channel_id": "-1003704494735",
 
   "payment": {
     "enabled": false,
